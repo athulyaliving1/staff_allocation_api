@@ -3,10 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var cors = require('cors')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const routes = require("./routes/allroutes");
+
 
 var app = express();
 
@@ -19,12 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors())
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/',routes);
 
-
+var db=require('./db/connection').mysql_pool;
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -42,7 +45,11 @@ app.use(function(err, req, res, next) {
 });
 
 
-const PORT = process.env.PORT || 9000;
+
+
+
+
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
 
   var datetime = new Date();

@@ -1,7 +1,5 @@
 // newregister function for post login route
 
-const bcrypt=require("bcrypt");
-const jwt=require("jsonwebtoken");
 var db=require('../db/connection.js').mysql_pool;
 
 const newvendorregister = async (req, res) => {
@@ -26,4 +24,30 @@ const newvendorregister = async (req, res) => {
     }
   };
 
-module.exports = {newvendorregister};
+
+
+  const getVendor = async (req, res) => {
+    try {
+      const sql = "SELECT * FROM staff_vendor_details";
+      
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        
+        res.status(200).json({ status: 200, error: null, response: result });
+        console.log(result);
+        
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  
+
+
+
+
+module.exports = {newvendorregister,getVendor};
