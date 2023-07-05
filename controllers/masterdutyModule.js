@@ -1,7 +1,6 @@
 var db = require('../db/connection.js').mysql_pool;
 
 
-
 const getmasterduty = (req, res) => {
     const query = "SELECT * FROM staff_master_duty";
 
@@ -14,15 +13,6 @@ const getmasterduty = (req, res) => {
         }
     });
 };
-
-
-
-
-
-
-
-
-
 
 
 

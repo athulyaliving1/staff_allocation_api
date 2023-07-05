@@ -57,4 +57,20 @@ const getcities = (req, res) => {
 
 
 
-module.exports = { getcities, getstates, getcountries }
+const staffSearch = (req, res) => {
+  const query = "SELECT full_name, employee_id FROM staffs;";
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching staffs:", err);
+      res.status(500).send("Error fetching staffs");
+    } else {
+      res.json(result);
+    }
+  });
+};
+
+
+
+
+
+module.exports = { getcities, getstates, getcountries,staffSearch }

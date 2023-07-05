@@ -4,6 +4,11 @@ const router = app.Router();
 const vendorModule = require('../controllers/vendorModule');
 const branchesModule = require('../controllers/branchesdepentModule');
 const masterdutyModule = require('../controllers/masterdutyModule');
+const staffModule = require('../controllers/staffModule')
+const shiftModule = require('../controllers/shiftModule');
+
+
+
 
 
 //Register Vendor 
@@ -17,10 +22,23 @@ router.get('/api/branches/countries', branchesModule.getcountries)
 router.get('/api/branches/states', branchesModule.getstates)
 
 
+
 //master duty
 
 router.get('/api/floor/masterduty',masterdutyModule.getmasterduty)
 
+
+
+//staff 
+
+router.get('/api/staff/staffsearch', staffModule.staffSearch)
+router.post('/api/staff/staffregister',staffModule.staffRegister);
+
+
+
+
+//shift 
+router.get('/api/shift/shiftsearch', shiftModule.shiftSearch)
 
 
 
