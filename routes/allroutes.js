@@ -14,6 +14,9 @@ const shiftModule = require('../controllers/shiftModule');
 //Register Vendor 
 router.post('/registervendor', vendorModule.newvendorregister);
 router.get('/getvendor', vendorModule.getVendor);
+router.delete('/deletevendor/:id', vendorModule.deleteVendor);
+router.put('/updatevendor/:id', vendorModule.updateVendor);
+
 
 
 //branches depent filter
@@ -25,14 +28,14 @@ router.get('/api/branches/states', branchesModule.getstates)
 
 //master duty
 
-router.get('/api/floor/masterduty',masterdutyModule.getmasterduty)
+router.get('/api/floor/masterduty', masterdutyModule.getmasterduty)
 
 
 
 //staff 
 
 router.get('/api/staff/staffsearch', staffModule.staffSearch)
-router.post('/api/staff/staffregister',staffModule.staffRegister);
+router.post('/api/staff/staffregister', staffModule.staffRegister);
 
 
 
