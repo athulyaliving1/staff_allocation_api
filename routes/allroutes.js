@@ -36,6 +36,8 @@ router.get('/api/floor/masterduty', masterdutyModule.getmasterduty)
 
 router.get('/api/staff/staffsearch', staffModule.staffSearch)
 router.post('/api/staff/staffregister', staffModule.staffRegister);
+router.get('/api/staff/staffprofile/:id', staffModule.staffProfile);
+
 
 
 

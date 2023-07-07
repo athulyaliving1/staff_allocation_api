@@ -86,4 +86,4 @@ const updateVendor = async (req, res) => {
 
 
 
-module.exports = { newvendorregister, getVendor, deleteVendor,updateVendor };
+module.exports = { newvendorregister, getVendor, deleteVendor, updateVendor };
