@@ -77,13 +77,4 @@ const staffProfile = (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
 module.exports = { staffSearch, staffRegister, staffProfile };

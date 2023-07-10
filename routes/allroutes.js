@@ -23,6 +23,8 @@ router.put('/updatevendor/:id', vendorModule.updateVendor);
 router.get('/api/branches/cities', branchesModule.getcities)
 router.get('/api/branches/countries', branchesModule.getcountries)
 router.get('/api/branches/states', branchesModule.getstates)
+router.get('/api/branches/location', branchesModule.branchlocation)
+router.get('/api/branches/getTowers', branchesModule.getTower)
 
 
 

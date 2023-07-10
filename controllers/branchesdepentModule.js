@@ -39,7 +39,7 @@ const getstates = (req, res) => {
 
 const getcities = (req, res) => {
 
-  const {branch_state_id} = req.query;
+  const { branch_state_id } = req.query;
 
   // Replace this with your database query to fetch cities based on the state
   const query = `SELECT DISTINCT branch_city,branch_city_id FROM master_branches WHERE branch_state_id =${branch_state_id}`;
@@ -54,6 +54,48 @@ const getcities = (req, res) => {
   });
 
 }
+
+
+const branchlocation = (req, res) => {
+  const { branch_city_id } = req.query;
+
+  const query = `SELECT DISTINCT id,branch_name FROM master_branches WHERE branch_city_id=${branch_city_id}`;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching location:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.log(results);
+    }
+  });
+};
+
+
+const getTower = (req, res) => {
+
+  const { location_id } = req.query;
+
+  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = '3'; `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching tower:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.log(results);
+    }
+  });
+
+}
+
+
+
+
+
+
 
 
 
@@ -73,4 +115,4 @@ const staffSearch = (req, res) => {
 
 
 
-module.exports = { getcities, getstates, getcountries,staffSearch }
+module.exports = { getcities, getstates, getcountries, staffSearch, branchlocation, getTower }
