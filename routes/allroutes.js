@@ -50,6 +50,8 @@ router.get('/api/shift/shiftsearch', shiftModule.shiftSearch)
 router.get('/api/shift/roster', shiftModule.shiftRoster);
 router.get('/api/shift/roster/:id', shiftModule.shiftRosterGetbyId)
 router.put('/api/shift/rosterupdate/:id', shiftModule.shiftRosterUpdate)
+router.get('/api/shift/rosterbranch/:id', shiftModule.shiftRosterBranchesUpdate)
+router.get('/api/shift/rostermasterduty/:id', shiftModule.shiftRosterDutyFetch)
 
 
 

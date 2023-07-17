@@ -96,14 +96,53 @@ const shiftRosterUpdate = (req, res) => {
 
         // Shift successfully updated
         res.status(200).json({ status: 200, error: null, response: 'Shift updated' });
-        res.json(result);
+        res.json(result[0]);
     });
 };
 
 
+const shiftRosterBranchesUpdate = (req, res) => {
+    const Id = req.params.id;
+
+    const query = `SELECT DISTINCT master_branches.branch_name, staff_allocation.branch_id 
+                   FROM staff_allocation 
+                   JOIN master_branches ON master_branches.id = staff_allocation.branch_id 
+                   WHERE staff_allocation.id = ?`;
+
+    db.query(query, [Id], (err, result) => {
+        if (err) {
+            console.error("Error Fetching Branch:", err);
+            return res.status(500).json({ error: "Error fetching Branch" });
+        }
+
+        res.json(result);
+        console.log(result);
+    });
+};
+
+
+const shiftRosterDutyFetch = (req, res) => {
+    const Id = req.params.id;
+
+    const query = `SELECT DISTINCT staff_allocation.duty_type_id,staff_master_duty.id,staff_master_duty.duty_name FROM staff_allocation JOIN staff_master_duty ON staff_master_duty.id = staff_allocation.duty_type_id WHERE staff_allocation.id ='1'; `
+
+    db.query(query, [Id], (err, result) => {
+        if (err) {
+            console.error("Error Fetching Branch:", err);
+            return res.status(500).json({ error: "Error fetching Branch" });
+        }
+
+        res.json(result);
+        console.log(result);
+    });
+
+
+
+}
 
 
 
 
 
-module.exports = { shiftSearch, shiftRoster, shiftRosterUpdate, shiftRosterGetbyId };
+
+module.exports = { shiftSearch, shiftRoster, shiftRosterUpdate, shiftRosterGetbyId, shiftRosterBranchesUpdate, shiftRosterDutyFetch };
