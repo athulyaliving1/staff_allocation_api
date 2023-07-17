@@ -9,8 +9,6 @@ const shiftModule = require('../controllers/shiftModule');
 
 
 
-
-
 //Register Vendor 
 router.post('/registervendor', vendorModule.newvendorregister);
 router.get('/getvendor', vendorModule.getVendor);
@@ -25,12 +23,14 @@ router.get('/api/branches/countries', branchesModule.getcountries)
 router.get('/api/branches/states', branchesModule.getstates)
 router.get('/api/branches/location', branchesModule.branchlocation)
 router.get('/api/branches/getTowers', branchesModule.getTower)
-
+router.get('/api/branches/floor', branchesModule.getFloor)
+router.get('/api/branches/section', branchesModule.getSection)
 
 
 //master duty
 
 router.get('/api/floor/masterduty', masterdutyModule.getmasterduty)
+
 
 
 
@@ -44,8 +44,12 @@ router.get('/api/staff/staffprofile/:id', staffModule.staffProfile);
 
 
 
+
 //shift 
 router.get('/api/shift/shiftsearch', shiftModule.shiftSearch)
+router.get('/api/shift/roster', shiftModule.shiftRoster);
+router.get('/api/shift/roster/:id', shiftModule.shiftRosterGetbyId)
+router.put('/api/shift/rosterupdate/:id', shiftModule.shiftRosterUpdate)
 
 
 

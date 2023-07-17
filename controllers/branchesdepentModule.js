@@ -75,9 +75,9 @@ const branchlocation = (req, res) => {
 
 const getTower = (req, res) => {
 
-  const { location_id } = req.query;
+  const { branch_id } = req.query;
 
-  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = '3'; `;
+  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = ${branch_id}; `;
 
   db.query(query, (err, results) => {
     if (err) {
@@ -91,6 +91,44 @@ const getTower = (req, res) => {
 
 }
 
+
+const getFloor = (req, res) => {
+
+  const { branch_id } = req.query;
+  console.log(branch_id);
+
+  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.floor FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = ${branch_id};`;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching tower:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.log(results);
+    }
+  });
+
+};
+
+
+const getSection = (req, res) => {
+  const { branch_id } = req.query;
+  console.log(branch_id);
+
+  const query = `SELECT DISTINCT mb.id,mb.branch_name, mfs.branch_id,mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id= ${branch_id};`;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching tower:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.log(results);
+    }
+  });
+
+
+
+};
 
 
 
@@ -115,4 +153,4 @@ const staffSearch = (req, res) => {
 
 
 
-module.exports = { getcities, getstates, getcountries, staffSearch, branchlocation, getTower }
+module.exports = { getcities, getstates, getcountries, staffSearch, branchlocation, getTower, getFloor,getSection }
