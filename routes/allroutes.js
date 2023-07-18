@@ -25,6 +25,7 @@ router.get('/api/branches/location', branchesModule.branchlocation)
 router.get('/api/branches/getTowers', branchesModule.getTower)
 router.get('/api/branches/floor', branchesModule.getFloor)
 router.get('/api/branches/section', branchesModule.getSection)
+router.get('/api/branches/')
 
 
 //master duty
@@ -46,13 +47,16 @@ router.get('/api/staff/staffprofile/:id', staffModule.staffProfile);
 
 
 //shift 
-router.get('/api/shift/shiftsearch', shiftModule.shiftSearch)
+router.get('/api/shift/shiftsearch', shiftModule.shiftSearch);
 router.get('/api/shift/roster', shiftModule.shiftRoster);
-router.get('/api/shift/roster/:id', shiftModule.shiftRosterGetbyId)
-router.put('/api/shift/rosterupdate/:id', shiftModule.shiftRosterUpdate)
-router.get('/api/shift/rosterbranch/:id', shiftModule.shiftRosterBranchesUpdate)
-router.get('/api/shift/rostermasterduty/:id', shiftModule.shiftRosterDutyFetch)
-
+router.get('/api/shift/roster/:id', shiftModule.shiftRosterGetbyId);
+router.put('/api/shift/rosterupdate/:id', shiftModule.shiftRosterUpdate);
+router.get('/api/shift/rosterbranch/:id', shiftModule.shiftRosterBranchesUpdate);
+router.get('/api/shift/rostermasterduty/:id', shiftModule.shiftRosterDutyFetch);
+router.get('/api/shift/rostermastershift/:id', shiftModule.shiftRosterShiftFetch);
+router.get('/api/shift/rostermasterstaff/:id', shiftModule.shiftRosterStaffsFetch);
+router.get('/api/shift/rosterfloorsection/:id', shiftModule.shiftRosterFloorsSectionFetch);
+router.get('/api/shift/rosterroom/:id', shiftModule.shiftRosterBedFetch);
 
 
 
