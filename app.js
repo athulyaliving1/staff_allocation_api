@@ -32,12 +32,11 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
-
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -50,7 +49,7 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4040;
 app.listen(PORT, () => {
   var datetime = new Date();
   console.log(datetime.toISOString().slice(0, 10));
