@@ -100,14 +100,22 @@ const getFloor = (req, res) => {
 };
 
 const getSection = (req, res) => {
-  const { branch_id, floor } = req.query;
+  const { branch_id, floor } = req.params;
   console.log(floor); // Output the value of 'floor' to the console for debugging purposes
   console.log(branch_id); // Output the value of 'branch_id' to the console for debugging purposes
 
-  const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section 
-                 FROM master_branches mb 
-                 JOIN master_floor_section mfs ON mb.id = mfs.branch_id 
+  const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section
+                 FROM master_branches mb
+                 JOIN master_floor_section mfs ON mb.id = mfs.branch_id
                  WHERE mfs.branch_id ='${branch_id}' AND mfs.floor ='${floor}'`;
+
+  // const sql =
+  //   "SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id ='${" +
+  //   branch_id +
+  //   "}' AND mfs.floor ='${" +
+  //   floor +
+  //   "}'";
+  // sql = "select distinct id from master_branches";
 
   console.log("SQL Query:", sql);
 
@@ -116,10 +124,11 @@ const getSection = (req, res) => {
       console.error("Error fetching section:", err);
       res.status(500).json({ error: "An error occurred" });
     } else {
-      res.status(200).json({ res: results });
+      // res.status(200).json({ res: results });
+      res.json(results);
       // res.send("Success");
 
-      console.log(results, "gdsf"); // Output the database query results to the console for debugging purposes
+      // Output the database query results to the console for debugging purposes
     }
   });
 };

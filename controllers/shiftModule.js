@@ -47,7 +47,7 @@ const shiftRosterUpdate = (req, res) => {
     branch_id,
     user_id,
     room_no,
-    bed_no,
+    bed_id,
     duty_type_id,
     floor,
     section_id,
@@ -58,12 +58,12 @@ const shiftRosterUpdate = (req, res) => {
     service_payable,
   } = req.body;
 
-  const sql = `UPDATE staff_allocation SET branch_id = ?, user_id = ?, room_no = ?, bed_no = ?, duty_type_id = ?, floor = ?, section_id = ?, staff_id = ?, staff_source = ?, shift = ?, staff_payable = ?, service_payable = ? WHERE id = ?`;
+  const sql = `UPDATE staff_allocation SET branch_id = ?, user_id = ?, room_no = ?,bed_id = ?, duty_type_id = ?, floor = ?, section_id = ?, staff_id = ?, staff_source = ?, shift = ?, staff_payable = ?, service_payable = ? WHERE id = ?`;
   const values = [
     branch_id,
     user_id,
     room_no,
-    bed_no,
+    bed_id,
     duty_type_id,
     floor,
     section_id,
@@ -92,10 +92,12 @@ const shiftRosterUpdate = (req, res) => {
 const shiftRosterBranchesUpdate = (req, res) => {
   const Id = req.params.id;
 
-  const query = `SELECT DISTINCT master_branches.branch_name, staff_allocation.branch_id 
-                   FROM staff_allocation 
-                   JOIN master_branches ON master_branches.id = staff_allocation.branch_id 
-                   WHERE staff_allocation.id = ?`;
+  // const query = `SELECT DISTINCT master_branches.branch_name, staff_allocation.branch_id
+  //                  FROM staff_allocation
+  //                  JOIN master_branches ON master_branches.id = staff_allocation.branch_id
+  //                  WHERE staff_allocation.id = ${Id}`;
+
+  const query = `SELECT * FROM master_branches WHERE id=${Id}`;
 
   db.query(query, [Id], (err, result) => {
     if (err) {
@@ -111,7 +113,9 @@ const shiftRosterBranchesUpdate = (req, res) => {
 const shiftRosterDutyFetch = (req, res) => {
   const Id = req.params.id;
 
-  const query = `SELECT DISTINCT staff_allocation.duty_type_id,staff_master_duty.id,staff_master_duty.duty_name FROM staff_allocation JOIN staff_master_duty ON staff_master_duty.id = staff_allocation.duty_type_id WHERE staff_allocation.id =${Id}; `;
+  // const query = `SELECT DISTINCT staff_allocation.duty_type_id,staff_master_duty.id,staff_master_duty.duty_name FROM staff_allocation JOIN staff_master_duty ON staff_master_duty.id = staff_allocation.duty_type_id WHERE staff_allocation.id =${Id}; `;
+
+  const query = `SELECT * FROM staff_master_duty WHERE id =${Id}`;
 
   db.query(query, [Id], (err, result) => {
     if (err) {
@@ -168,7 +172,7 @@ const shiftRosterFloorsSectionFetch = (req, res) => {
 
 const shiftRosterBedFetch = (req, res) => {
   const Id = req.params.id;
-  const query = `SELECT DISTINCT master_beds.room_id,master_beds.bed_number FROM master_beds JOIN staff_allocation ON master_beds.room_id = staff_allocation.bed_no WHERE master_beds.room_id=${Id};`;
+  const query = `SELECT DISTINCT master_beds.room_id,master_beds.bed_number FROM master_beds JOIN staff_allocation ON master_beds.room_id = staff_allocation.bed_id WHERE master_beds.room_id=${Id};`;
   db.query(query, [Id], (err, result) => {
     if (err) {
       console.error("Error Fetching Branch:", err);
@@ -195,6 +199,73 @@ const shiftRosterroomsFetch = (req, res) => {
   });
 };
 
+const shiftMasterBranchFetch = (req, res) => {
+  const query = `SELECT * FROM master_branches`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error Fetching Branch:", err);
+      return res.status(500).json({ error: "Error fetching Branch" });
+    }
+    res.json(result);
+    console.log(result);
+  });
+};
+
+const shiftMasterFloorFetch = (req, res) => {
+  const query = `SELECT * FROM master_floor_section`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error Fetching Section:", err);
+      return res.status(500).json({ error: "Error fetching Section" });
+    }
+    res.json(result);
+    console.log(result);
+  });
+};
+
+const shiftMasterSectionFetch = (req, res) => {
+  const query = `SELECT * FROM master_sections`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error Fetching Section:", err);
+      return res.status(500).json({ error: "Error fetching Section" });
+    }
+    res.json(result);
+    console.log(result);
+  });
+};
+
+const shiftMasterbedFetch = (req, res) => {
+  const query = `SELECT id, bed_number FROM master_beds`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error Fetching Section:", err);
+      return res.status(500).json({ error: "Error fetching Section" });
+    }
+    res.json(result);
+    console.log(result);
+  });
+};
+
+const shiftVendorsearch = (req, res) => {
+  const Id = req.params.id;
+
+  const query = `SELECT DISTINCT staff_vendor_details.name,staff_vendor_details.id FROM staff_vendor_details INNER JOIN staffs ON staffs.vendor_id =staff_vendor_details.id WHERE staff_vendor_details.id=${Id};`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error Fetching Vendor:", err);
+      return res.status(500).json({ error: "Error fetching vendor" });
+    }
+    res.json(result);
+    console.log(result);
+  });
+};
+
 module.exports = {
   shiftSearch,
   shiftRoster,
@@ -207,4 +278,9 @@ module.exports = {
   shiftRosterFloorsSectionFetch,
   shiftRosterBedFetch,
   shiftRosterroomsFetch,
+  shiftMasterBranchFetch,
+  shiftMasterFloorFetch,
+  shiftMasterbedFetch,
+  shiftMasterSectionFetch,
+  shiftVendorsearch,
 };

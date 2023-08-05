@@ -5,7 +5,8 @@ config = {
         host     : '162.241.123.158',
         user     : 'theatgg6_shg',
         password : 'r3pbWhs8psb5nitZjlpDvg',
-        database : 'theatgg6_sal_subscriber100'
+        database : 'theatgg6_sal_subscriber100',
+        multipleStatements: true
     })
     // mysql_pool : mysql.createPool({
     //     host     : 'localhost',

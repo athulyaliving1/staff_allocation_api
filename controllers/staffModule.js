@@ -1,9 +1,7 @@
-var db = require('../db/connection.js').mysql_pool;
-
-
+var db = require("../db/connection.js").mysql_pool;
 
 const staffSearch = (req, res) => {
-  const query = "SELECT full_name, employee_id FROM staffs;";
+  const query = "SELECT id, full_name, employee_id,vendor_id FROM staffs;";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staffs:", err);
@@ -13,7 +11,6 @@ const staffSearch = (req, res) => {
     }
   });
 };
-
 
 const staffRegister = (req, res) => {
   const staffData = {
@@ -39,23 +36,19 @@ const staffRegister = (req, res) => {
     permanent_city: req.body.permanent_city,
     permanent_pin_code: req.body.permanent_pin_code,
     permanent_state: req.body.permanent_state,
-    permanent_country: req.body.permanent_country
+    permanent_country: req.body.permanent_country,
   };
 
-
   // Assuming you have a database connection pool instance named `pool`
-  db.query('INSERT INTO staffs SET ?', staffData, (err, result) => {
+  db.query("INSERT INTO staffs SET ?", staffData, (err, result) => {
     if (err) {
-      console.error('Error inserting staff data:', err);
-      res.status(500).send('Error inserting staff data');
+      console.error("Error inserting staff data:", err);
+      res.status(500).send("Error inserting staff data");
     } else {
-      res.status(201).json({ message: 'Staff data inserted successfully' });
+      res.status(201).json({ message: "Staff data inserted successfully" });
     }
   });
 };
-
-
-
 
 const staffProfile = (req, res) => {
   const staffempid = req.params.id;
@@ -72,9 +65,5 @@ const staffProfile = (req, res) => {
     }
   });
 };
-
-
-
-
 
 module.exports = { staffSearch, staffRegister, staffProfile };
