@@ -8,6 +8,10 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const routes = require("./routes/allroutes");
 var bodyParser = require("body-parser");
+// Requiring in-built https for creating
+// https server
+const https = require("https");
+const fs = require("fs");
 
 var app = express();
 
@@ -49,11 +53,32 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
+
+// Creating object of key and certificate
+// for SSL
+const options = {
+  key: fs.readFileSync("athulyahomecare.org.key"),
+  cert: fs.readFileSync("athulyahomecare.org.cert"),
+};
+  
+
+
+
+
+
 const PORT = process.env.PORT || 4040;
-app.listen(PORT, () => {
+
+https.createServer(options, app, PORT).listen(PORT, function (req, res) {
   var datetime = new Date();
   console.log(datetime.toISOString().slice(0, 10));
   console.log(`Server is running on port ${PORT}.`);
 });
+
+
+// app.listen(PORT, () => {
+//   var datetime = new Date();
+//   console.log(datetime.toISOString().slice(0, 10));
+//   console.log(`Server is running on port ${PORT}.`);
+// });
 
 module.exports = app;
