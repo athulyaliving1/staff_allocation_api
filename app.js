@@ -60,19 +60,19 @@ const options = {
 
 const PORT = process.env.PORT || 4040;
 
-const server = https.createServer(options, app);
+// const server = https.createServer(options, app);
 
-server.listen(PORT, function () {
-  var datetime = new Date();
-  console.log(datetime.toISOString().slice(0, 10));
-  console.log(`Server is running on port ${PORT}.`);
-});
-
-// app.listen(PORT, () => {
+// server.listen(PORT, function () {
 //   var datetime = new Date();
 //   console.log(datetime.toISOString().slice(0, 10));
 //   console.log(`Server is running on port ${PORT}.`);
 // });
+
+app.listen(PORT, () => {
+  var datetime = new Date();
+  console.log(datetime.toISOString().slice(0, 10));
+  console.log(`Server is running on port ${PORT}.`);
+});
 
 
 

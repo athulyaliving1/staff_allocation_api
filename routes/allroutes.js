@@ -71,6 +71,11 @@ router.get("/api/shift/masterbeds", shiftModule.shiftMasterbedFetch);
 
 router.get("/api/shift/vendorsearch/:id", shiftModule.shiftVendorsearch);
 
+router.delete(
+  "/api/shift/shiftrosterdelete/:id",
+  shiftModule.shiftrosterdelete
+);
+
 //floor allocation
 
 router.post(
@@ -83,9 +88,9 @@ router.put(
   shiftAllocationModule.floorAllocationUpdate
 );
 
-router.put(
-  "/api/shiftallocation/floorallocationbulkupdate",
-  shiftAllocationModule.floorallocationbulkupdate
-);
+// router.put(
+//   "/api/shiftallocation/floorallocationbulkupdate",
+//   shiftAllocationModule.floorallocationbulkupdate
+// );
 
 module.exports = router; // export to use in server.js

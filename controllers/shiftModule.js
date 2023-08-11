@@ -266,6 +266,24 @@ const shiftVendorsearch = (req, res) => {
   });
 };
 
+const shiftrosterdelete = (req, res) => {
+  const ShiftId = req.params.id;
+
+  const sql = `DELETE FROM staff_allocation WHERE id = "${ShiftId}"`;
+
+  db.query(sql, (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    // Vendor successfully deleted
+    res
+      .status(200)
+      .json({ status: 200, error: null, response: "Shift deleted" });
+  });
+};
+
 module.exports = {
   shiftSearch,
   shiftRoster,
@@ -283,4 +301,5 @@ module.exports = {
   shiftMasterbedFetch,
   shiftMasterSectionFetch,
   shiftVendorsearch,
+  shiftrosterdelete 
 };
