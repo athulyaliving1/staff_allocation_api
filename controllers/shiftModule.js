@@ -172,7 +172,7 @@ const shiftRosterFloorsSectionFetch = (req, res) => {
 
 const shiftRosterBedFetch = (req, res) => {
   const Id = req.params.id;
-  const query = `SELECT DISTINCT master_beds.room_id,master_beds.bed_number FROM master_beds JOIN staff_allocation ON master_beds.room_id = staff_allocation.bed_id WHERE master_beds.room_id=${Id};`;
+  const query = `SELECT DISTINCT master_beds.room_id,master_beds.id as bed_id,master_beds.bed_number, staff_allocation.room_no FROM master_beds JOIN staff_allocation ON master_beds.id = staff_allocation.bed_id WHERE master_beds.id='${Id}'`;
   db.query(query, [Id], (err, result) => {
     if (err) {
       console.error("Error Fetching Branch:", err);
@@ -301,5 +301,5 @@ module.exports = {
   shiftMasterbedFetch,
   shiftMasterSectionFetch,
   shiftVendorsearch,
-  shiftrosterdelete 
+  shiftrosterdelete,
 };
