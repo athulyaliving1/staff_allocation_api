@@ -28,3 +28,4 @@ jobs:
     - run: npm i
     - run: sudo pm2 restart staff_api
     - run: sudo pm2 save
+    
