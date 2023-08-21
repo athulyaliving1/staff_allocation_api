@@ -88,9 +88,9 @@ router.put(
   shiftAllocationModule.floorAllocationUpdate
 );
 
-// router.put(
-//   "/api/shiftallocation/floorallocationbulkupdate",
-//   shiftAllocationModule.floorallocationbulkupdate
-// );
+router.put(
+  "/api/shiftallocation/floorallocationbulkupdate",
+  shiftAllocationModule.floorallocationbulkupdate
+);
 
 module.exports = router; // export to use in server.js
