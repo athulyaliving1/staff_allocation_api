@@ -70,7 +70,8 @@ const branchlocation = (req, res) => {
 const getTower = (req, res) => {
   const { branch_id } = req.query;
 
-  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower as mfs_tower, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id  join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
+  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id 
+                 join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
 
   db.query(query, (err, results) => {
     if (err) {
