@@ -322,19 +322,6 @@ const floorallocationbulkupdate = (req, res) => {
           }
         }
       );
-
-      //const update_query="update staff_allocation set staff_id=?,staff_payable=? where floor=? and section_id=? and branch_id=? and schedule_date='"+today+"' and duty_type_id=?";
-
-      // db.query(update_query,[updated_staff_id,updated_staff_payable,floor,updated_section,branch_id,duty_type_id],(err, result) => {
-      //   if (err) {
-
-      //     console.log(err);
-      //   }else{
-      //     console.log(update_query);
-      //     console.log(result);
-      //   }
-      // });
-      // res.status(200).json({ status: 200, error: null, response: "Floor Data Updated for staff "+req.body.emp_id+" to floor "+req.body.floor});
     }
   });
 };
