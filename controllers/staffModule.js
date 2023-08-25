@@ -52,7 +52,7 @@ const staffRegister = (req, res) => {
 
 const staffProfile = (req, res) => {
   const staffempid = req.params.id;
-  console.log(staffempid);
+  // console.log(staffempid);
 
   const query = `SELECT employee_id, full_name, date_of_birth, gender, blood_group, marital_status, mobile_number, email, personal_email, current_address, current_area, current_city, current_pin_code, current_state, current_country, permanent_address, permanent_area, permanent_city, permanent_pin_code, permanent_state, permanent_country FROM staffs WHERE employee_id="${staffempid}"`;
 

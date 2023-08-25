@@ -184,13 +184,16 @@ async function insertBulkData(
 
 const floorAllocationUpdate = (req, res) => {
   const floorAllocationId = req.params.id;
-  const { duty, staff_id, staff_payable, service_payable } = req.body;
+  const { duty_type_id, staff_id, staff_payable, service_payable } = req.body;
+  console.log(req.body);
 
   const sql = `UPDATE staff_allocation SET duty_type_id = ?, staff_id = ?, staff_payable = ?, service_payable = ? WHERE id = ?`;
 
+  console.log(sql);
+
   db.query(
     sql,
-    [duty, staff_id, staff_payable, service_payable, floorAllocationId],
+    [duty_type_id, staff_id, staff_payable, service_payable, floorAllocationId],
     (error, result) => {
       if (error) {
         console.error(error);
@@ -198,6 +201,7 @@ const floorAllocationUpdate = (req, res) => {
       }
       res.status(200).json({ status: 200, error: null, response: "Success" });
       console.log(result);
+      console.log(sql);
     }
   );
 };
@@ -301,17 +305,15 @@ const floorallocationbulkupdate = (req, res) => {
                   }
                 }
               );
-              res
-                .status(200)
-                .json({
-                  status: 200,
-                  error: null,
-                  response:
-                    "Floor Data Updated for staff " +
-                    req.body.emp_id +
-                    " to floor " +
-                    req.body.floor,
-                });
+              res.status(200).json({
+                status: 200,
+                error: null,
+                response:
+                  "Floor Data Updated for staff " +
+                  req.body.emp_id +
+                  " to floor " +
+                  req.body.floor,
+              });
             } else {
               res
                 .status(200)

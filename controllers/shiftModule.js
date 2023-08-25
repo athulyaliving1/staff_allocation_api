@@ -36,7 +36,7 @@ const shiftRosterGetbyId = (req, res) => {
       res.status(500).send("Error fetching shift");
     } else {
       res.json(result);
-      console.log(result);
+      // console.log(result);
     }
   });
 };
@@ -106,7 +106,7 @@ const shiftRosterBranchesUpdate = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -124,7 +124,7 @@ const shiftRosterDutyFetch = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -138,7 +138,7 @@ const shiftRosterShiftFetch = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -152,7 +152,7 @@ const shiftRosterStaffsFetch = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -166,7 +166,7 @@ const shiftRosterFloorsSectionFetch = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -181,7 +181,7 @@ const shiftRosterBedFetch = (req, res) => {
 
     res.json(result);
 
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -195,7 +195,7 @@ const shiftRosterroomsFetch = (req, res) => {
     }
 
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -208,7 +208,7 @@ const shiftMasterBranchFetch = (req, res) => {
       return res.status(500).json({ error: "Error fetching Branch" });
     }
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -221,7 +221,7 @@ const shiftMasterFloorFetch = (req, res) => {
       return res.status(500).json({ error: "Error fetching Section" });
     }
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -234,7 +234,7 @@ const shiftMasterSectionFetch = (req, res) => {
       return res.status(500).json({ error: "Error fetching Section" });
     }
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -247,7 +247,7 @@ const shiftMasterbedFetch = (req, res) => {
       return res.status(500).json({ error: "Error fetching Section" });
     }
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 
@@ -262,7 +262,7 @@ const shiftVendorsearch = (req, res) => {
       return res.status(500).json({ error: "Error fetching vendor" });
     }
     res.json(result);
-    console.log(result);
+    // console.log(result);
   });
 };
 

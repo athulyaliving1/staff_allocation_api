@@ -19,7 +19,7 @@ const getcountries = (req, res) => {
 const getstates = (req, res) => {
   const { branch_country_id } = req.query;
 
-  console.log("branch_country_id:", branch_country_id);
+  // console.log("branch_country_id:", branch_country_id);
 
   const query = `SELECT DISTINCT branch_state,branch_state_id FROM master_branches WHERE branch_country_id = ${branch_country_id}`;
 
@@ -62,7 +62,7 @@ const branchlocation = (req, res) => {
       res.status(500).send("An error occurred");
     } else {
       res.json(results);
-      console.log(results);
+      // console.log(results);
     }
   });
 };
@@ -70,8 +70,7 @@ const branchlocation = (req, res) => {
 const getTower = (req, res) => {
   const { branch_id } = req.query;
 
-  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.tower, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id 
-                 join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
+  const query = `SELECT DISTINCT mb.id,mfs.tower as towerno, mfs.branch_id,mb.branch_name, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
 
   db.query(query, (err, results) => {
     if (err) {
@@ -79,7 +78,7 @@ const getTower = (req, res) => {
       res.status(500).send("An error occurred");
     } else {
       res.json(results);
-      console.log(results);
+      // console.log(results);
     }
   });
 };
@@ -95,7 +94,7 @@ const getFloor = (req, res) => {
       res.status(500).send("An error occurred");
     } else {
       res.json(results);
-      console.log(results);
+      // console.log(results);
     }
   });
 };
