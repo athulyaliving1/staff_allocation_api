@@ -1,6 +1,5 @@
 const app = require("express"); //import express
 const router = app.Router();
-
 const vendorModule = require("../controllers/vendorModule");
 const branchesModule = require("../controllers/branchesdepentModule");
 const masterdutyModule = require("../controllers/masterdutyModule");
@@ -35,6 +34,7 @@ router.get("/api/floor/masterduty", masterdutyModule.getmasterduty);
 router.get("/api/staff/staffsearch", staffModule.staffSearch);
 router.post("/api/staff/staffregister", staffModule.staffRegister);
 router.get("/api/staff/staffprofile/:id", staffModule.staffProfile);
+router.get("/api/staff/staffrole/:id", staffModule.staffRoleSearchById);
 
 //shift
 router.get("/api/shift/shiftsearch", shiftModule.shiftSearch);
@@ -91,6 +91,33 @@ router.put(
 router.put(
   "/api/shiftallocation/floorallocationbulkupdate",
   shiftAllocationModule.floorallocationbulkupdate
+);
+
+router.post(
+  "/api/shiftallocation/staffnurseallocation",
+  shiftAllocationModule.StaffNurseAllocation
+);
+
+router.get("/api/shift/staffnurseroster", shiftModule.staffnurseshiftRoster);
+
+router.post(
+  "/api/shift/staffnurserosterotupdate/:id",
+  shiftAllocationModule.StaffNurseOTAllocation
+);
+
+
+
+// router.post(
+//   "/api/shift/staffnurserosterotupdate1",
+//   shiftAllocationModule.StaffNurseOTAllocation1
+// );
+
+
+
+
+router.get(
+  "/api/shift/staffnurserosterotgetbyid/:id",
+  shiftAllocationModule.StaffNurseOTAllocationGetByUser
 );
 
 module.exports = router; // export to use in server.js

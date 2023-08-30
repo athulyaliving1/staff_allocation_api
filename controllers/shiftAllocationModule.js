@@ -1,5 +1,16 @@
 var db = require("../db/connection.js").mysql_pool;
+var express = require("express");
+var app = express();
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+  next();
+});
 const floorAllocation = (req, res) => {
   const body = req.body;
   console.log(body);
@@ -326,8 +337,627 @@ const floorallocationbulkupdate = (req, res) => {
   });
 };
 
+const StaffNurseAllocation = (req, res) => {
+  const body = req.body;
+  console.log(body);
+
+  const query =
+    "select id,source from staffs where employee_id='" + req.body.emp_id + "'";
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching staff:", err);
+      res.status(500).send("Error fetching shift");
+    } else {
+      console.log(result[0].id);
+      user_id = 123;
+      branch_id = req.body.branch_id;
+      duty_type_id = req.body.duty;
+      floor = req.body.floor;
+      staff_id = result[0].id;
+      staff_source = result[0].source;
+      staff_nurse_shift = req.body.shift;
+      staff_payable = req.body.staff_payable;
+      service_payable = req.body.service_payable;
+
+      console.log(staff_id);
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, "0");
+      var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+      var yyyy = today.getFullYear();
+      today = yyyy + "-" + mm + "-" + dd;
+      schedule_date = today;
+      status_1 = 1;
+      const query_1 =
+        "SELECT count(*) as total FROM `staff_nurse_allocation` where schedule_date='" +
+        today +
+        "' and branch_id=" +
+        req.body.branch_id +
+        " and floor='" +
+        req.body.floor +
+        "' and duty_type_id=" +
+        req.body.duty +
+        " and staff_nurse_shift=" +
+        req.body.shift;
+      //const query_1 ="SELECT count(*) as total FROM `staff_nurse_allocation` where schedule_date='"+today+"' and branch_id="+req.body.branch_id+" and floor='"+req.body.floor+"' and duty_type_id="+req.body.duty+" and staff_nurse_shift="+req.body.shift;
+
+      db.query(query_1, (err, result) => {
+        if (err) {
+          console.error("Error fetching staff_nurse_allocation:", err);
+          res.status(500).send("Error fetching staff_nurse_allocation");
+        } else {
+          console.log(result[0].total);
+          const present = result[0].total;
+          if (present > 0) {
+            res
+              .status(500)
+              .send(
+                "Already Staff Nurse is allocated to that Floor for that shift"
+              );
+          } else {
+            const query =
+              "INSERT INTO `staff_nurse_allocation`(`branch_id`, `user_id`, `duty_type_id`, `floor`, `staff_id`, `staff_source`, `staff_nurse_shift`, `staff_payable`, `service_payable`, `schedule_date`, `status`) VALUES (" +
+              branch_id +
+              "," +
+              user_id +
+              "," +
+              duty_type_id +
+              ",'" +
+              floor +
+              "'," +
+              staff_id +
+              ",'" +
+              staff_source +
+              "'," +
+              staff_nurse_shift +
+              "," +
+              staff_payable +
+              "," +
+              service_payable +
+              ",'" +
+              schedule_date +
+              "'," +
+              status_1 +
+              ")";
+            console.log(query);
+            db.query(query, (err, result) => {
+              if (err) {
+                console.error("Error fetching staff_nurse_allocation:", err);
+                res
+                  .status(500)
+                  .send("Error in inserting staff nurse allocation");
+              } else {
+                res
+                  .status(200)
+                  .send("Staff Nurse Allocated for the floor " + floor);
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+};
+
+const StaffNurseOTAllocation = (req, res) => {
+  const body = req.body;
+  const id = req.params.id;
+  console.log("params" + id);
+  console.log(body);
+  user_id = 123;
+  ot_type = req.body.ot_type;
+  emp_id = req.body.emp_id;
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, "0");
+  var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  var yyyy = today.getFullYear();
+  today = yyyy + "-" + mm + "-" + dd;
+  schedule_date = today;
+
+  var staff_nurse_allocation_id = id;
+  var query =
+    "select * from staff_nurse_allocation where status=1 and id=" +
+    staff_nurse_allocation_id;
+  console.log(ot_type + " " + emp_id + " ");
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching data:", err);
+      res.status(500).send("Error fetching data");
+    } else {
+      console.log(result);
+      duplicate = result[0];
+      var present = result.length;
+      var query =
+        "select id,source from staffs where employee_id='" +
+        req.body.emp_id +
+        "'";
+
+      db.query(query, (err, result) => {
+        if (err) {
+          console.error("Error fetching staff:", err);
+          res.status(500).send("Error fetching shift");
+        } else {
+          //console.log(result[0].id);
+          staff_id = result[0].id;
+          staff_source = result[0].source;
+
+          if (present > 0) {
+            if (ot_type == "Extended") {
+              // insert operation in staff_nurse_allocation,staff_leav
+
+              data = result[0];
+
+              staff_payable = req.body.staff_payable;
+              service_payable = req.body.service_payable;
+
+              var insert_query =
+                "insert into staff_nurse_allocation (branch_id, user_id, duty_type_id, floor, staff_payable,  schedule_date, ot_type, ot_hrs_shift,status,staff_nurse_shift,staff_id,staff_source) values(?,?,?,?,?,?,?,?,?,?,?,?); update staff_nurse_allocation set status=0,ot_type=null where id=" +
+                staff_nurse_allocation_id +
+                ";";
+              //var insert_query="insert into staff_nurse_allocation (branch_id, user_id) values(?,?)";
+              console.log(insert_query);
+
+              //Fetch staff payable based on previous shift
+              // fetch_staff_payable="select distinct staff_payable from staff_nurse_allocation where staff_id="+staff_id+" and schedule_date='"+today+"'";
+
+              // db.query(fetch_staff_payable,(err,result1)=>{
+              //   if(err)
+              //   {
+              //     console.log(err)
+              //   }else{
+              //     console.log(result1[0].staff_payable);
+              //     staff_payable=result1[0].staff_payable;
+
+              //     db.query(insert_query,[duplicate.branch_id,user_id,duplicate.duty_type_id,duplicate.floor,staff_payable,duplicate.schedule_date,req.body.ot_type,req.body.ot_hrs_shift,1,req.body.ot_shift,data.id,data.source],(err,result)=>{
+
+              //     if (err) {
+              //       console.error("Error fetching data:", err);
+              //       res.status(500).send("Error fetching data");
+              //     }else{
+              //       res.status(200).json({ response: "OT Allocated to 3 hrs for "+req.body.emp_id });
+              //     }
+
+              //   });
+
+              //   }
+              //   //console.log(fetch_staff_payable);
+
+              // });
+
+              db.query(
+                insert_query,
+                [
+                  duplicate.branch_id,
+                  user_id,
+                  duplicate.duty_type_id,
+                  duplicate.floor,
+                  staff_payable,
+                  duplicate.schedule_date,
+                  req.body.ot_type,
+                  req.body.ot_hrs_shift,
+                  1,
+                  req.body.ot_shift,
+                  data.id,
+                  data.source,
+                ],
+                (err, result) => {
+                  if (err) {
+                    console.error("Error fetching data:", err);
+                    res.status(500).send("Error fetching data");
+                  } else {
+                    res.status(200).json({
+                      response: "OT Allocated to 3 hrs for " + req.body.emp_id,
+                    });
+                  }
+                }
+              );
+              console.log(duplicate.branch_id);
+            } else if (ot_type == "Shift") {
+              // update operation in staff_nurse_allocation
+              query =
+                "update staff_nurse_allocation set staff_id=?,staff_source=?,ot_type='" +
+                req.body.ot_type +
+                "',staff_payable=?,service_payable=?,ot_hrs_shift=? where id=" +
+                staff_nurse_allocation_id;
+              staff_query =
+                "select id,source from staffs where employee_id='" +
+                req.body.emp_id +
+                "'";
+              db.query(staff_query, (err, result) => {
+                if (err) {
+                  console.error("Error fetching staff:", err);
+                  res.status(500).send("Error fetching shift");
+                } else {
+                  staff_id = result[0].id;
+                  staff_source = result[0].source;
+                  db.query(
+                    query,
+                    [
+                      staff_id,
+                      staff_source,
+                      req.body.staff_payable,
+                      req.body.service_payable,
+                      req.body.ot_hrs_shift,
+                    ],
+                    (err, result) => {
+                      res.status(200).json({
+                        response: "Shift Updated for " + req.body.emp_id,
+                      });
+                    }
+                  );
+                }
+              });
+            }
+          } else {
+            res.status(200).json({ response: "Data not present" });
+          }
+        }
+      });
+    }
+  });
+};
+
+// const   StaffNurseOTAllocation = async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     console.log(req.id);
+//     const staffId = 2;
+//     console.log(staffId);
+//     const {
+//       ot_type,
+//       emp_id,
+//       staff_payable,
+//       service_payable,
+//       ot_hrs_shift,
+//       ot_shift,
+//     } = req.body;
+
+//     const today = new Date().toISOString().split("T")[0];
+
+//     const result = await new Promise((resolve, reject) => {
+//       db.query(
+//         "SELECT * FROM staff_nurse_allocation WHERE status = 1 AND id = ?",
+//         [staffId],
+//         (err, result) => {
+//           if (err) {
+//             console.error("Error fetching data:", err);
+//             reject(err);
+//           } else {
+//             resolve(result);
+//           }
+//         }
+//       );
+//     });
+
+//     console.log(result);
+//     const present = result.length;
+//     if (present === 0) {
+//       return res.status(204).json({ response: "Data not present" });
+//     }
+
+//     const duplicate = result[0];
+
+//     const staffResult = await new Promise((resolve, reject) => {
+//       db.query(
+//         "SELECT id, source FROM staffs WHERE employee_id = ?",
+//         [emp_id],
+//         (err, staffResult) => {
+//           if (err) {
+//             console.error("Error fetching staff:", err);
+//             reject(err);
+//           } else {
+//             resolve(staffResult);
+//           }
+//         }
+//       );
+//     });
+
+//     const data = staffResult[0];
+//     const staff_id = data.id;
+//     const staff_source = data.source;
+
+//     const insertQuery =
+//       "INSERT INTO staff_nurse_allocation (branch_id, user_id, duty_type_id, floor, staff_payable, schedule_date, ot_type, ot_hrs_shift, status, staff_nurse_shift, staff_id, staff_source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); UPDATE staff_nurse_allocation SET status = 0, ot_type = NULL WHERE id = ?";
+
+//     const fetchStaffPayable =
+//       "SELECT DISTINCT staff_payable FROM staff_nurse_allocation WHERE staff_id = ? AND schedule_date = ?";
+
+//     const fetched_staff_payable_result = await new Promise(
+//       (resolve, reject) => {
+//         db.query(fetchStaffPayable, [staff_id, today], (err, result1) => {
+//           if (err) {
+//             console.log(err);
+//             reject(err);
+//           } else {
+//             resolve(result1);
+//           }
+//         });
+//       }
+//     );
+//     console.log(req.body);
+//     // const fetched_staff_payable = fetched_staff_payable_result[0].staff_payable;
+//     const fetched_staff_payable = 1;
+
+//     const insertionResult = await new Promise((resolve, reject) => {
+//       db.query(
+//         insertQuery,
+//         [
+//           duplicate.branch_id,
+//           123, // user_id (you might want to fetch this dynamically)
+//           duplicate.duty_type_id,
+//           duplicate.floor,
+//           fetched_staff_payable,
+//           duplicate.schedule_date,
+//           ot_type,
+//           ot_hrs_shift,
+//           1,
+//           ot_shift,
+//           data.id,
+//           data.source,
+//           1,
+//         ],
+//         (err, result) => {
+//           if (err) {
+//             console.error("Error inserting data:", err);
+//             reject(err);
+//           } else {
+//             resolve(result);
+//           }
+//         }
+//       );
+//     });
+
+//     res.status(200).json({
+//       response: `OT Allocated to ${ot_hrs_shift} hrs for ${emp_id}`,
+//     });
+//   } catch (error) {
+//     console.error("Error updating shift:", error);
+//     Swal.fire("Error!", "Failed to update shift.", "error");
+
+//     // Show specific error message if available
+//     if (error.response && error.response.data) {
+//       Swal.fire("Error!", error.response.data, "error");
+//     } else {
+//       Swal.fire("Error!", "Internal Server Error", "error");
+//     }
+//     // ... handle error, e.g., show error message to the user
+//   }
+// };
+
+// const StaffNurseOTAllocation = (req, res) => {
+//   const body = req.body;
+//   const staffId = req.params.id;
+//   console.log(body);
+//   console.log("Testing hit rate");
+//   user_id = 123;
+//   ot_type = req.body.ot_type;
+//   emp_id = req.body.emp_id;
+//   var today = new Date();
+//   var dd = String(today.getDate()).padStart(2, "0");
+//   var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+//   var yyyy = today.getFullYear();
+//   today = yyyy + "-" + mm + "-" + dd;
+//   schedule_date = today;
+
+//   var staff_nurse_allocation_id = staffId;
+//   var query =
+//     "select * from staff_nurse_allocation where status=1 and id=" +
+//     staff_nurse_allocation_id;
+//   console.log("ID:" + query);
+//   db.query(query, (err, result) => {
+//     if (err) {
+//       console.error("Error fetching data:", err);
+//       res.status(500).send("Error fetching data");
+//     } else {
+//       console.log(result);
+//       console.log("Testing for result..");
+//       duplicate = result[0];
+//       var present = result.length;
+//       var query =
+//         "select id,source from staffs where employee_id='" +
+//         req.body.emp_id +
+//         "'";
+
+//       db.query(query, (err, result) => {
+//         if (err) {
+//           console.error("Error fetching staff:", err);
+//           res.status(500).send("Error fetching shift");
+//         } else {
+//           //console.log(result[0].id);
+//           staff_id = result[0].id;
+//           staff_source = result[0].source;
+
+//           if (present > 0) {
+//             if (ot_type == "OTHours") {
+//               // insert operation in staff_nurse_allocation,staff_leav
+
+//               data = result[0];
+
+//               staff_payable = req.body.staff_payable;
+//               service_payable = req.body.service_payable;
+
+//               var insert_query =
+//                 "insert into staff_nurse_allocation (branch_id, user_id, duty_type_id, floor, staff_payable,  schedule_date, ot_type, ot_hrs_shift,status,staff_nurse_shift,staff_id,staff_source) values(?,?,?,?,?,?,?,?,?,?,?,?); update staff_nurse_allocation set status=0,ot_type=null where id=" +
+//                 staff_nurse_allocation_id +
+//                 ";";
+//               //var insert_query="insert into staff_nurse_allocation (branch_id, user_id) values(?,?)";
+//               console.log(insert_query);
+
+//               //Fetch staff payable based on previous shift
+//               fetch_staff_payable =
+//                 "select distinct staff_payable from staff_nurse_allocation where staff_id=" +
+//                 staff_id +
+//                 " and schedule_date='" +
+//                 today +
+//                 "'";
+
+//               db.query(fetch_staff_payable, (err, result1) => {
+//                 if (err) {
+//                   console.log(err);
+//                 } else {
+//                   console.log(result1[0].staff_payable);
+//                   // staff_payable = result1[0].staff_payable;
+//                   staff_payable = 2;
+
+//                   db.query(
+//                     insert_query,
+//                     [
+//                       duplicate.branch_id,
+//                       user_id,
+//                       duplicate.duty_type_id,
+//                       duplicate.floor,
+//                       staff_payable,
+//                       duplicate.schedule_date,
+//                       req.body.ot_type,
+//                       req.body.ot_hrs_shift,
+//                       1,
+//                       req.body.ot_shift,
+//                       data.id,
+//                       data.source,
+//                     ],
+//                     (err, result) => {
+//                       if (err) {
+//                         console.error("Error fetching data:", err);
+//                         res.status(500).send("Error fetching data");
+//                       } else {
+//                         res.status(200).json({
+//                           response:
+//                             "OT Allocated to 3 hrs for " + req.body.emp_id,
+//                         });
+//                       }
+//                     }
+//                   );
+//                 }
+//                 //console.log(fetch_staff_payable);
+//               });
+
+//               db.query(
+//                 insert_query,
+//                 [
+//                   duplicate.branch_id,
+//                   user_id,
+//                   duplicate.duty_type_id,
+//                   duplicate.floor,
+//                   staff_payable,
+//                   duplicate.schedule_date,
+//                   req.body.ot_type,
+//                   req.body.ot_hrs_shift,
+//                   1,
+//                   req.body.ot_shift,
+//                   data.id,
+//                   data.source,
+//                 ],
+//                 (err, result) => {
+//                   if (err) {
+//                     console.error("Error fetching data:", err);
+//                     res.status(500).send("Error fetching data");
+//                   } else {
+//                     res.status(200).json({
+//                       response: "OT Allocated to 3 hrs for " + req.body.emp_id,
+//                     });
+//                   }
+//                 }
+//               );
+//               console.log(duplicate.branch_id);
+//             } else if (ot_type == "OTShift") {
+//               // update operation in staff_nurse_allocation
+//               query =
+//                 "update staff_nurse_allocation set staff_id=?,staff_source=?,ot_type='" +
+//                 req.body.ot_type +
+//                 "',staff_payable=?,service_payable=?,ot_hrs_shift=? where id=" +
+//                 staff_nurse_allocation_id;
+//               staff_query =
+//                 "select id,source from staffs where employee_id='" +
+//                 req.body.emp_id +
+//                 "'";
+//               db.query(staff_query, (err, result) => {
+//                 if (err) {
+//                   console.error("Error fetching staff:", err);
+//                   res.status(500).send("Error fetching shift");
+//                 } else {
+//                   staff_id = result[0].id;
+//                   staff_source = result[0].source;
+//                   db.query(
+//                     query,
+//                     [
+//                       staff_id,
+//                       staff_source,
+//                       req.body.staff_payable,
+//                       req.body.service_payable,
+//                       req.body.ot_hrs_shift,
+//                     ],
+//                     (err, result) => {
+//                       res.status(200).json({
+//                         response: "Shift Updated for " + req.body.emp_id,
+//                       });
+//                     }
+//                   );
+//                 }
+//               });
+//             }
+//           } else {
+//             res.status(200).json({ response: "Data not present" });
+//           }
+//         }
+//       });
+//     }
+//   });
+// };
+
+// const StaffNurseOTAllocation1 = (req, res) => {
+//   const data = req.body;
+
+//   console.log(data);
+//   // Construct the SQL query
+//   const query = `
+//     INSERT INTO staff_nurse_allocation_demo
+//     (ot_shift, leave_reason, ot_type, ot_hrs_shift, emp_id, staff_payable)
+//     VALUES (?, ?, ?, ?, ?, ?)
+//   `;
+
+//   // Prepare and execute the query
+//   db.query(
+//     query,
+//     [
+//       data.ot_shift,
+//       data.leave_reason,
+//       data.ot_type,
+//       data.ot_hrs_shift,
+//       data.emp_id,
+//       data.staff_payable,
+//     ],
+//     (err, result) => {
+//       if (err) {
+//         console.error("Error inserting data:", err);
+//         res.status(500).json({ error: "Error inserting data" });
+//         return;
+//       }
+//       console.log("Data inserted successfully");
+//       res.json({ message: "Data inserted successfully" });
+//     }
+//   );
+// };
+
+const StaffNurseOTAllocationGetByUser = (req, res) => {
+  const shiftId = req.params.id;
+
+  const query = `SELECT * FROM staff_nurse_allocation WHERE id = "${shiftId}"`;
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching staff:", err);
+      res.status(500).send("Error fetching shift");
+    } else {
+      res.json(result);
+      // console.log(result);
+    }
+  });
+};
+
 module.exports = {
   floorAllocation,
   floorAllocationUpdate,
   floorallocationbulkupdate,
+  StaffNurseAllocation,
+  StaffNurseOTAllocation,
+  StaffNurseOTAllocationGetByUser,
 };

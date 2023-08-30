@@ -1,7 +1,7 @@
 var db = require("../db/connection.js").mysql_pool;
 
 const shiftSearch = (req, res) => {
-  const query = "SELECT id,shift_name FROM master_shifts;";
+  const query = "SELECT * FROM master_shifts;";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staff:", err);
@@ -25,6 +25,31 @@ const shiftRoster = (req, res) => {
     }
   });
 };
+
+
+
+const staffnurseshiftRoster = (req, res) => {
+  // const query = "SELECT id,branch_id,user_id,room_no,bed_no,duty_type_id,floor,section_id,staff_id,staff_resource,shift_id,staff_source,shift,staff_payable,service_payable,schedule_date, FROM staff_allocation"
+
+  const query = "SELECT * FROM staff_nurse_allocation";
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching staff:", err);
+      res.status(500).send("Error fetching shift");
+    } else {
+      res.json(result);
+    }
+  });
+};
+
+
+
+
+
+
+
+
+
 
 const shiftRosterGetbyId = (req, res) => {
   const shiftId = req.params.id;
@@ -287,6 +312,7 @@ const shiftrosterdelete = (req, res) => {
 module.exports = {
   shiftSearch,
   shiftRoster,
+  staffnurseshiftRoster,
   shiftRosterUpdate,
   shiftRosterGetbyId,
   shiftRosterBranchesUpdate,
