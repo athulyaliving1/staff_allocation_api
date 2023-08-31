@@ -26,6 +26,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm i
-    - run: pm2 restart staff_api
+    - run: pm2 restart staff-api
     - run: pm2 save
     
