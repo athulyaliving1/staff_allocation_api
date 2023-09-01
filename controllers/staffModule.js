@@ -2,7 +2,8 @@ var db = require("../db/connection.js").mysql_pool;
 
 const staffSearch = (req, res) => {
   // const query = "SELECT id, full_name, employee_id,vendor_id FROM staffs"
-  const query = "select staffs.id,staffs.employee_id,staffs.full_name,staff_professional_details.role,staffs.vendor_id   FROM staffs INNER JOIN staff_professional_details ON staffs.id = staff_professional_details.staff_id";
+  const query =
+    "select staffs.id,staffs.employee_id,staffs.full_name,staff_professional_details.role,staffs.vendor_id   FROM staffs INNER JOIN staff_professional_details ON staffs.id = staff_professional_details.staff_id";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staffs:", err);
@@ -12,33 +13,26 @@ const staffSearch = (req, res) => {
     }
   });
 };
-
 
 const staffRoleSearchById = (req, res) => {
-       
-    const roleId = req.params.id;
+  const roleId = req.params.id;
 
-    console.log(req.params.id)
+  console.log(req.params.id);
 
-
- const query = `select staffs.id,staffs.employee_id,staffs.full_name,staff_professional_details.role FROM staffs INNER JOIN staff_professional_details ON staffs.id = staff_professional_details.staff_id WHERE staffs.employee_id=${roleId};`;
+  const query = `SELECT staffs.id, staffs.employee_id, staffs.full_name, staff_professional_details.role,staff_professional_details.id as Sid
+  FROM staffs
+  INNER JOIN staff_professional_details
+  ON staffs.id = staff_professional_details.id WHERE staffs.employee_id='${roleId}';`;
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staffs:", err);
       res.status(500).send("Error fetching staffs");
     } else {
       res.json(result);
+      console.log(result);
     }
   });
-
-
-
 };
-
-
-
-
-
 
 const staffRegister = (req, res) => {
   const staffData = {
@@ -94,4 +88,9 @@ const staffProfile = (req, res) => {
   });
 };
 
-module.exports = { staffSearch, staffRegister, staffProfile,staffRoleSearchById };
+module.exports = {
+  staffSearch,
+  staffRegister,
+  staffProfile,
+  staffRoleSearchById,
+};
