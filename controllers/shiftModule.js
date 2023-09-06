@@ -26,8 +26,6 @@ const shiftRoster = (req, res) => {
   });
 };
 
-
-
 const staffnurseshiftRoster = (req, res) => {
   // const query = "SELECT id,branch_id,user_id,room_no,bed_no,duty_type_id,floor,section_id,staff_id,staff_resource,shift_id,staff_source,shift,staff_payable,service_payable,schedule_date, FROM staff_allocation"
 
@@ -41,15 +39,6 @@ const staffnurseshiftRoster = (req, res) => {
     }
   });
 };
-
-
-
-
-
-
-
-
-
 
 const shiftRosterGetbyId = (req, res) => {
   const shiftId = req.params.id;
@@ -182,6 +171,7 @@ const shiftRosterStaffsFetch = (req, res) => {
 };
 
 const shiftRosterFloorsSectionFetch = (req, res) => {
+  console.log(req.params);
   const Id = req.params.id;
   const query = `SELECT  master_floor_section.floor,master_floor_section.sectionname,master_floor_section.id FROM master_floor_section JOIN staff_allocation ON master_floor_section.id = staff_allocation.floor WHERE master_floor_section.id= ${Id};`;
   db.query(query, [Id], (err, result) => {
@@ -191,7 +181,7 @@ const shiftRosterFloorsSectionFetch = (req, res) => {
     }
 
     res.json(result);
-    // console.log(result);
+    console.log(result);
   });
 };
 
@@ -309,6 +299,24 @@ const shiftrosterdelete = (req, res) => {
   });
 };
 
+const staffShiftRosterDelete = (req, res) => {
+  const ShiftId = req.params.id;
+
+  const sql = `DELETE FROM staff_nurse_allocation WHERE id = "${ShiftId}"`;
+
+  db.query(sql, (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    // Vendor successfully deleted
+    res
+      .status(200)
+      .json({ status: 200, error: null, response: "Shift deleted" });
+  });
+};
+
 module.exports = {
   shiftSearch,
   shiftRoster,
@@ -328,4 +336,5 @@ module.exports = {
   shiftMasterSectionFetch,
   shiftVendorsearch,
   shiftrosterdelete,
+  staffShiftRosterDelete,
 };

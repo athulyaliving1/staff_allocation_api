@@ -105,15 +105,14 @@ router.post(
   shiftAllocationModule.StaffNurseOTAllocation
 );
 
-
-
+router.delete(
+  "/api/shift/staffshiftrosterdelete/:id",
+  shiftModule.staffShiftRosterDelete
+);
 // router.post(
 //   "/api/shift/staffnurserosterotupdate1",
 //   shiftAllocationModule.StaffNurseOTAllocation1
 // );
-
-
-
 
 router.get(
   "/api/shift/staffnurserosterotgetbyid/:id",

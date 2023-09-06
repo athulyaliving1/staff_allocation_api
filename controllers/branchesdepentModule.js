@@ -78,23 +78,33 @@ const getTower = (req, res) => {
       res.status(500).send("An error occurred");
     } else {
       res.json(results);
-      // console.log(results);
+      console.log(results);
     }
   });
 };
 
 const getFloor = (req, res) => {
-  const { branch_id } = req.query;
-  console.log(branch_id);
+  const { branch_id, tower_id } = req.query;
+  console.log(branch_id, tower_id);
 
-  const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.floor FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = ${branch_id};`;
+  // Validate that branch_id and tower_id are defined and not empty
+  if (!branch_id || !tower_id) {
+    return res
+      .status(400)
+      .json({ error: "Both branch_id and tower_id are required." });
+  }
+  console.log(branch_id);
+  console.log(tower_id);
+
+  // const query = `SELECT DISTINCT mb.id, mfs.branch_id,mb.branch_name,mfs.floor FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = ${branch_id};`;
+  const query = `SELECT DISTINCT  mb.id,mfs.tower, mfs.branch_id,mb.branch_name,mfs.floor FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id = ${branch_id} AND mfs.tower=${tower_id};`;
   db.query(query, (err, results) => {
     if (err) {
       console.error("Error fetching tower:", err);
       res.status(500).send("An error occurred");
     } else {
       res.json(results);
-      // console.log(results);
+      console.log(results);
     }
   });
 };
@@ -107,7 +117,7 @@ const getSection = (req, res) => {
   const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section
                  FROM master_branches mb
                  JOIN master_floor_section mfs ON mb.id = mfs.branch_id
-                 WHERE mfs.branch_id ='${branch_id}' AND mfs.floor ='${floor}'`;
+                 WHERE mfs.branch_id ='${branch_id}' AND mfs.floor ="${floor}"`;
 
   // const sql =
   //   "SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id ='${" +

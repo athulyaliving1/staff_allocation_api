@@ -218,6 +218,7 @@ const floorAllocationUpdate = (req, res) => {
 };
 
 const floorallocationbulkupdate = (req, res) => {
+  console.log(req.body);
   const floorAllocationUpdate = req.body;
   var today = new Date();
   var dd = String(today.getDate()).padStart(2, "0");
