@@ -11,12 +11,13 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
   next();
 });
+
 const floorAllocation = (req, res) => {
   const body = req.body;
   console.log(body);
-
+  const tower = req.body.tower;
   const query =
-    "SELECT master_rooms.branch_id,room_number,master_beds.id as bed_id,master_rooms.floor,master_sections.id as section_id FROM master_floor_section join master_rooms on master_floor_section.id=master_rooms.floor join master_beds on master_beds.room_id=master_rooms.id join master_sections on master_floor_section.section=master_sections.abbr where master_floor_section.branch_id=" +
+    "SELECT master_rooms.branch_id,room_number,master_beds.id as bed_id,master_rooms.floor,master_sections.id as section_id,master_floor_section.tower as tower FROM master_floor_section join master_rooms on master_floor_section.id=master_rooms.floor join master_beds on master_beds.room_id=master_rooms.id join master_sections on master_floor_section.section=master_sections.abbr where master_floor_section.branch_id=" +
     req.body.branch_id +
     " and master_floor_section.floor='" +
     req.body.floor +
@@ -25,6 +26,7 @@ const floorAllocation = (req, res) => {
     " and master_sections.abbr='" +
     req.body.section +
     "' and master_floor_section.status='Active';";
+  console.log("ttt" + query);
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staff:", err);
@@ -97,6 +99,7 @@ const floorAllocation = (req, res) => {
               today,
               branch_id,
               floor,
+              tower,
               shift,
               res // Pass the 'res' object as a parameter to the insertBulkData function
             )
@@ -125,6 +128,7 @@ async function insertBulkData(
   todays,
   branch_id,
   floor,
+  tower,
   shift
 ) {
   try {
@@ -139,7 +143,9 @@ async function insertBulkData(
       branch_id +
       " and section='" +
       section_id +
-      "') and shift=" +
+      "' and master_floor_section.tower=" +
+      tower +
+      ") and shift=" +
       shift +
       "";
     console.log(recordexists);

@@ -144,7 +144,7 @@ const shiftRosterDutyFetch = (req, res) => {
 
 const shiftRosterShiftFetch = (req, res) => {
   const Id = req.params.id;
-  const query = `SELECT DISTINCT master_shifts.shift_name ,master_shifts.id FROM master_shifts JOIN staff_allocation ON master_shifts.id = staff_allocation.shift WHERE staff_allocation.shift = ${Id};`;
+  const query = `SELECT DISTINCT master_shifts.shift_name As shiftname ,master_shifts.id FROM master_shifts JOIN staff_allocation ON master_shifts.id = staff_allocation.shift WHERE staff_allocation.shift = ${Id};`;
   db.query(query, [Id], (err, result) => {
     if (err) {
       console.error("Error Fetching Branch:", err);
@@ -152,7 +152,7 @@ const shiftRosterShiftFetch = (req, res) => {
     }
 
     res.json(result);
-    // console.log(result);
+    console.log(result);
   });
 };
 
