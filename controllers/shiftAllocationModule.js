@@ -30,7 +30,7 @@ const floorAllocation = (req, res) => {
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staff:", err);
-      res.status(500).send("Error fetching shift");
+      res.status(202).send("Error fetching shift");
     } else {
       console.log(result);
       // result.forEach(function(obj)
@@ -40,7 +40,7 @@ const floorAllocation = (req, res) => {
       const present = Array.isArray(result) && result.length;
       //console.log(t);
       if (present == 0) {
-        res.status(500).json("Error in configuring rooms and beds..");
+        res.status(203).json("Error in configuring rooms and beds..");
       } else {
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, "0");
@@ -70,7 +70,7 @@ const floorAllocation = (req, res) => {
         db.query(staff_id, (err, result1) => {
           if (err) {
             console.error("Error fetching staff:", err);
-            res.status(500).send("Error fetching shift");
+            res.status(204).send("Error fetching shift");
           } else {
             const data_to_insert = [];
 
