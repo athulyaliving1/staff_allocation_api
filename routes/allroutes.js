@@ -6,6 +6,7 @@ const masterdutyModule = require("../controllers/masterdutyModule");
 const staffModule = require("../controllers/staffModule");
 const shiftModule = require("../controllers/shiftModule");
 const shiftAllocationModule = require("../controllers/shiftAllocationModule.js");
+const staffReportsModule=require("../controllers/staffReportsModule.js");
 
 //Register Vendor
 router.post("/registervendor", vendorModule.newvendorregister);
@@ -19,11 +20,15 @@ router.get("/api/branches/countries", branchesModule.getcountries);
 router.get("/api/branches/states", branchesModule.getstates);
 router.get("/api/branches/location", branchesModule.branchlocation);
 router.get("/api/branches/getTowers", branchesModule.getTower);
+router.get("/api/branches/masterTower", branchesModule.getmasterTower);
 router.get("/api/branches/floor", branchesModule.getFloor);
 router.get(
   "/api/branches/section/:branch_id/:floor",
   branchesModule.getSection
 );
+
+router.get("/api/branches/beds/:roomId", branchesModule.getBeds);
+router.get("/api/branches/rooms/:floorId", branchesModule.getRooms);
 
 //master duty
 
@@ -118,5 +123,21 @@ router.get(
   "/api/shift/staffnurserosterotgetbyid/:id",
   shiftAllocationModule.StaffNurseOTAllocationGetByUser
 );
+
+//Filter
+
+router.get("/api/fetchbranches", branchesModule.getBranches);
+
+
+
+//Report 
+router.post("/api/staff_base_report/reports",staffReportsModule.StaffReportsModule);
+
+router.post("/api/dutywisereport/reports",staffReportsModule.DutyWiseReport);
+
+
+
+
+
 
 module.exports = router; // export to use in server.js

@@ -83,6 +83,22 @@ const getTower = (req, res) => {
   });
 };
 
+const getmasterTower = (req, res) => {
+  const { tower_id } = req.query;
+
+  const query = `SELECT * FROM master_towers`;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching tower:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.log(results);
+    }
+  });
+};
+
 const getFloor = (req, res) => {
   const { branch_id, tower_id } = req.query;
   console.log(branch_id, tower_id);
@@ -114,10 +130,11 @@ const getSection = (req, res) => {
   console.log(floor); // Output the value of 'floor' to the console for debugging purposes
   console.log(branch_id); // Output the value of 'branch_id' to the console for debugging purposes
 
-  const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section
-                 FROM master_branches mb
-                 JOIN master_floor_section mfs ON mb.id = mfs.branch_id
+  const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.id AS flrefId, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id
                  WHERE mfs.branch_id ='${branch_id}' AND mfs.floor ="${floor}"`;
+
+  // const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.id AS flrefId, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id
+  //                WHERE mfs.branch_id ='${branch_id}' AND mfs.floor ="${floor}"`;
 
   // const sql =
   //   "SELECT DISTINCT mb.id, mb.branch_name, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id WHERE mfs.branch_id ='${" +
@@ -136,6 +153,7 @@ const getSection = (req, res) => {
     } else {
       // res.status(200).json({ res: results });
       res.json(results);
+      console.log(results);
       // res.send("Success");
 
       // Output the database query results to the console for debugging purposes
@@ -155,6 +173,61 @@ const staffSearch = (req, res) => {
   });
 };
 
+const getBeds = (req, res) => {
+  const floorId = req.params.roomId;
+  console.log("Requested floorId:", floorId);
+
+  // Use parameterized query to prevent SQL injection
+  // const query = "SELECT DISTINCT * FROM master_beds WHERE room_id = ?";
+  const query =
+    " SELECT master_beds.id,master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_beds.room_id = ?";
+
+  console.log("Query:", query);
+  // Execute the parameterized query with floorId as a parameter
+  db.query(query, [floorId], (err, result) => {
+    if (err) {
+      console.error("Error fetching rooms:", err);
+      // Send an error response with a 500 status code and a meaningful error message
+      res.status(500).json({ error: "Error fetching rooms" });
+    } else {
+      // Send the query result as JSON data in the response
+      res.json(result);
+      console.log(result);
+    }
+  });
+};
+
+const getRooms = (req, res) => {
+  const floorId = req.params.floorId; // Use req.params to get the value of floorId from the URL
+
+  console.log(floorId);
+  const query = `SELECT DISTINCT * FROM master_rooms WHERE floor=${floorId}`;
+  console.log(query);
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching rooms:", err);
+      res.status(500).json({ error: "Error fetching rooms" });
+    } else {
+      res.json(result);
+      console.log(result);
+    }
+  });
+};
+
+const getBranches = (req, res) => {
+  const query = `SELECT DISTINCT  id,branch_name,branch_code FROM master_branches`;
+  console.log(query);
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching branches:", err);
+      res.status(500).json({ error: "Error fetching branches" });
+    } else {
+      res.json(result);
+      console.log(result);
+    }
+  });
+};
+
 module.exports = {
   getcities,
   getstates,
@@ -164,4 +237,8 @@ module.exports = {
   getTower,
   getFloor,
   getSection,
+  getBeds,
+  getRooms,
+  getBranches,
+  getmasterTower,
 };
