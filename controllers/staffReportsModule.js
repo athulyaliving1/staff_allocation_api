@@ -1,11 +1,12 @@
-const { json } = require("express");
-
 var db = require("../db/connection.js").mysql_pool;
 
-const StaffReportsModule = async (req, res) => {
+const StaffBaseReport = async (req, res) => {
   // const query = "SELECT id, full_name, employee_id,vendor_id FROM staffs"
   console.log(req.query);
   var { from_date, to_date, branch_id, tower, floor, section } = req.query;
+  floor = floor.substring(1);
+  section = section.substring(1);
+  console.log(floor);
   var today = new Date();
   var dd = String(today.getDate()).padStart(2, "0");
   var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
@@ -71,7 +72,6 @@ const StaffReportsModule = async (req, res) => {
   });
 
   res.status(200).json({ Result: ans });
-  console.table(ans);
   console.log(ans);
 };
 
@@ -158,9 +158,10 @@ const DutyWiseReport = async (req, res) => {
 
   res.status(200).json({ Result: ans });
   console.log(ans);
+  console.table(ans);
 };
 
 module.exports = {
-  StaffReportsModule,
+  StaffBaseReport,
   DutyWiseReport,
 };

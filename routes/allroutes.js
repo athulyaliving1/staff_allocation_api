@@ -6,7 +6,7 @@ const masterdutyModule = require("../controllers/masterdutyModule");
 const staffModule = require("../controllers/staffModule");
 const shiftModule = require("../controllers/shiftModule");
 const shiftAllocationModule = require("../controllers/shiftAllocationModule.js");
-const staffReportsModule=require("../controllers/staffReportsModule.js");
+const staffReportsModule = require("../controllers/staffReportsModule.js");
 
 //Register Vendor
 router.post("/registervendor", vendorModule.newvendorregister);
@@ -25,6 +25,11 @@ router.get("/api/branches/floor", branchesModule.getFloor);
 router.get(
   "/api/branches/section/:branch_id/:floor",
   branchesModule.getSection
+);
+
+router.get(
+  "/api/branches/sectionbyid/:branch_id/:floor",
+  branchesModule.getSection1
 );
 
 router.get("/api/branches/beds/:roomId", branchesModule.getBeds);
@@ -128,16 +133,12 @@ router.get(
 
 router.get("/api/fetchbranches", branchesModule.getBranches);
 
+//Report
+router.post(
+  "/api/staff_base_report/reports",
+  staffReportsModule.StaffBaseReport
+);
 
-
-//Report 
-router.post("/api/staff_base_report/reports",staffReportsModule.StaffReportsModule);
-
-router.post("/api/dutywisereport/reports",staffReportsModule.DutyWiseReport);
-
-
-
-
-
+router.post("/api/dutywisereport/reports", staffReportsModule.DutyWiseReport);
 
 module.exports = router; // export to use in server.js

@@ -161,6 +161,31 @@ const getSection = (req, res) => {
   });
 };
 
+const getSection1 = (req, res) => {
+  const { branch_id, floor } = req.params;
+  console.log(floor); // Output the value of 'floor' to the console for debugging purposes
+  console.log(branch_id); // Output the value of 'branch_id' to the console for debugging purposes
+
+  const sql = `SELECT DISTINCT mb.id, mb.branch_name, mfs.id AS flrefId, mfs.branch_id, mfs.section FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id
+                 WHERE mfs.branch_id ='${branch_id}' AND mfs.id ="${floor}"`;
+
+  console.log("SQL Query:", sql);
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching section:", err);
+      res.status(500).json({ error: "An error occurred" });
+    } else {
+      // res.status(200).json({ res: results });
+      res.json(results);
+      console.table(results);
+      // res.send("Success");
+
+      // Output the database query results to the console for debugging purposes
+    }
+  });
+};
+
 const staffSearch = (req, res) => {
   const query = "SELECT full_name, employee_id FROM staffs;";
   db.query(query, (err, result) => {
@@ -241,4 +266,5 @@ module.exports = {
   getRooms,
   getBranches,
   getmasterTower,
+  getSection1,
 };
