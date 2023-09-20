@@ -1,3 +1,5 @@
+const { query } = require("express");
+
 var db = require("../db/connection.js").mysql_pool;
 
 const StaffBaseReport = async (req, res) => {
@@ -161,7 +163,43 @@ const DutyWiseReport = async (req, res) => {
   console.table(ans);
 };
 
+const ShiftDetails = async (req, res) => {
+  console.log(req.query);
+  var { from_date, to_date, branch_id } = req.query;
+
+  const default_branches = await new Promise((resolve, reject) => {
+    db.query("select distinct id from master_branches", (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+  all_branches = default_branches.map((tt) => tt.id);
+  const filter_branches = !branch_id ? all_branches : branch_id;
+  from_date = !from_date ? today : from_date;
+  to_date = !to_date ? today : to_date;
+
+  Query =
+    "select * from staff_nurse_allocation where schedule_date between ? and ? AND  branch_id = ?";
+
+  const ans = await new Promise((resolve, reject) => {
+    db.query(Query, [from_date, to_date, filter_branches], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+
+  res.status(200).json({ Result: ans });
+  console.log(ans);
+};
+
 module.exports = {
   StaffBaseReport,
   DutyWiseReport,
+  ShiftDetails,
 };

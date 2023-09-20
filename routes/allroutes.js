@@ -141,4 +141,9 @@ router.post(
 
 router.post("/api/dutywisereport/reports", staffReportsModule.DutyWiseReport);
 
+
+router.post("/api/shiftdetails/reports", staffReportsModule.ShiftDetails);
+
+
+
 module.exports = router; // export to use in server.js
