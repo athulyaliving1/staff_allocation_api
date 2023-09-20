@@ -30,7 +30,7 @@ const floorAllocation = (req, res) => {
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staff:", err);
-      res.status(202).send("Error fetching shift");
+      res.status(500).send("Error fetching shift");
     } else {
       console.log(result);
       // result.forEach(function(obj)
@@ -40,7 +40,7 @@ const floorAllocation = (req, res) => {
       const present = Array.isArray(result) && result.length;
       //console.log(t);
       if (present == 0) {
-        res.status(203).json("Error in configuring rooms and beds..");
+        res.status(500).json("Error in configuring rooms and beds..");
       } else {
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, "0");
@@ -49,6 +49,23 @@ const floorAllocation = (req, res) => {
         today = yyyy + "-" + mm + "-" + dd;
         const user_id = 123;
         const floor = req.body.floor;
+        const floor_abbr = req.body.floor;
+        // const tower=req.body.tower;
+        const floor_map = new Map();
+        floor_map.set("G", 0);
+        floor_map.set("F1", 1);
+        floor_map.set("F2", 2);
+        floor_map.set("F3", 3);
+        floor_map.set("F4", 4);
+        floor_map.set("F5", 5);
+        floor_map.set("F6", 6);
+        floor_map.set("F7", 7);
+        floor_map.set("F8", 8);
+        floor_map.set("F9", 9);
+        floor_map.set("F10", 10);
+        floor_map.set("F11", 11);
+        const master_floor = floor_map.get(floor_abbr);
+
         const branch_id = req.body.branch_id;
         const section_id =
           "select id from master_sections where abbr='" +
@@ -70,7 +87,7 @@ const floorAllocation = (req, res) => {
         db.query(staff_id, (err, result1) => {
           if (err) {
             console.error("Error fetching staff:", err);
-            res.status(204).send("Error fetching shift");
+            res.status(500).send("Error fetching shift");
           } else {
             const data_to_insert = [];
 
@@ -78,6 +95,8 @@ const floorAllocation = (req, res) => {
               var tmp = {};
               tmp["branch_id"] = result[j].branch_id;
               tmp["user_id"] = user_id;
+              tmp["tower"] = tower;
+              tmp["master_floor"] = master_floor;
               tmp["room_number"] = result[j].room_number;
               tmp["bed_id"] = result[j].bed_id;
               tmp["duty_type_id"] = parseFloat(duty_id);
@@ -166,7 +185,7 @@ async function insertBulkData(
       // Your bulk insert code goes here
 
       const query =
-        "INSERT INTO staff_allocation (branch_id, user_id, room_no, bed_id, duty_type_id, floor, section_id, staff_id, staff_source, shift, staff_payable,schedule_date) VALUES ?";
+        "INSERT INTO staff_allocation (branch_id, user_id, room_no, bed_id, duty_type_id,tower, master_floor,floor, section_id, staff_id, staff_source, shift, staff_payable,schedule_date) VALUES ?";
 
       const values = data_to_insert.map((item) => [
         item.branch_id,
@@ -174,6 +193,8 @@ async function insertBulkData(
         item.room_number,
         item.bed_id,
         item.duty_type_id,
+        item.tower,
+        item.master_floor,
         item.floor,
         item.section_id,
         item.staff_id,
