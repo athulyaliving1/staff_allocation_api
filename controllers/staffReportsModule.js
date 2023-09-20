@@ -56,12 +56,12 @@ const StaffBaseReport = async (req, res) => {
   const filter_floors = !floor ? all_floors : floor;
   console.log(filter_floors);
   //query="select staffs.employee_id,staffs.full_name,master_branches.branch_name,staff_master_duty.duty_name,staff_nurse_allocation.floor from staff_nurse_allocation join staffs on staff_nurse_allocation.staff_id=staffs.id join master_branches on staff_nurse_allocation.branch_id=master_branches.id join staff_master_duty on staff_nurse_allocation.duty_type_id=staff_master_duty.id where schedule_date between ? and ? and branch_id in (?) and tower in (?) and floor in (?)" ;
-  query =
+  Query =
     "select staffs.employee_id,staffs.full_name,master_branches.branch_name,staff_master_duty.duty_name,staff_allocation.tower,staff_allocation.master_floor,staff_allocation.section_id from staff_allocation join staffs on staff_allocation.staff_id=staffs.id join master_branches on staff_allocation.branch_id=master_branches.id join staff_master_duty on staff_allocation.duty_type_id=staff_master_duty.id where schedule_date between ? and ? and branch_id in (?) and tower in (?) and master_floor in (?) group by staff_allocation.duty_type_id,branch_id,tower,floor,section_id";
 
   const ans = await new Promise((resolve, reject) => {
     db.query(
-      query,
+      Query,
       [from_date, to_date, filter_branches, filter_towers, filter_floors],
       (err, results) => {
         if (err) {
@@ -141,12 +141,12 @@ const DutyWiseReport = async (req, res) => {
   const filter_floors = !floor ? all_floors : floor;
   console.log(filter_floors);
   //query="select staffs.employee_id,staffs.full_name,master_branches.branch_name,staff_master_duty.duty_name,staff_nurse_allocation.floor from staff_nurse_allocation join staffs on staff_nurse_allocation.staff_id=staffs.id join master_branches on staff_nurse_allocation.branch_id=master_branches.id join staff_master_duty on staff_nurse_allocation.duty_type_id=staff_master_duty.id where schedule_date between ? and ? and branch_id in (?) and tower in (?) and floor in (?)" ;
-  query =
+  Query =
     "SELECT staff_allocation.schedule_date,staff_master_duty.duty_name,master_branches.branch_name,master_shifts.shift_name,count(staff_allocation.staff_id) as total_staff_deployed FROM `staff_allocation` join staff_master_duty on staff_allocation.duty_type_id=staff_master_duty.id join master_branches on staff_allocation.branch_id=master_branches.id join master_shifts on staff_allocation.shift=master_shifts.id where schedule_date between ? and ? and staff_allocation.branch_id in (?) and staff_allocation.tower in (?) group by staff_allocation.duty_type_id;";
 
   const ans = await new Promise((resolve, reject) => {
     db.query(
-      query,
+      Query,
       [from_date, to_date, filter_branches, filter_towers, filter_floors],
       (err, results) => {
         if (err) {
