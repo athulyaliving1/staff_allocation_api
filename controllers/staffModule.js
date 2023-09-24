@@ -2,8 +2,7 @@ var db = require("../db/connection.js").mysql_pool;
 
 const staffSearch = (req, res) => {
   // const query = "SELECT id, full_name, employee_id,vendor_id FROM staffs"
-  const query =
-    "select staffs.id,staffs.employee_id,staffs.full_name,staff_professional_details.role,staffs.vendor_id   FROM staffs INNER JOIN staff_professional_details ON staffs.id = staff_professional_details.staff_id";
+  const query ="select staffs.id,staffs.employee_id,staffs.full_name,staff_professional_details.role,staffs.vendor_id,staff_professional_details.employment_type,staff_professional_details.source,staff_professional_details.source_name FROM staffs INNER JOIN staff_professional_details ON staffs.id = staff_professional_details.staff_id";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staffs:", err);
@@ -13,6 +12,8 @@ const staffSearch = (req, res) => {
     }
   });
 };
+
+
 
 const staffRoleSearchById = (req, res) => {
   const roleId = req.params.id;

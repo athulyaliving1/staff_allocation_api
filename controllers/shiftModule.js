@@ -15,7 +15,7 @@ const shiftSearch = (req, res) => {
 const shiftRoster = (req, res) => {
   // const query = "SELECT id,branch_id,user_id,room_no,bed_no,duty_type_id,floor,section_id,staff_id,staff_resource,shift_id,staff_source,shift,staff_payable,service_payable,schedule_date, FROM staff_allocation"
 
-  const query = "SELECT * FROM staff_allocation ORDER BY schedule_date DESC ";
+  const query = "SELECT * FROM staff_allocation ORDER BY id DESC ";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching staff:", err);

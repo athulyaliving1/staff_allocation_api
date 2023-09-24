@@ -136,14 +136,14 @@ router.get("/api/fetchbranches", branchesModule.getBranches);
 //Report
 router.post(
   "/api/staff_base_report/reports",
-  staffReportsModule.StaffBaseReport
+  staffReportsModule.StaffReportsModule
 );
 
 router.post("/api/dutywisereport/reports", staffReportsModule.DutyWiseReport);
 
+router.post("/api/shiftdetails/reports", staffReportsModule.StaffNurseReport,
+);
 
-router.post("/api/shiftdetails/reports", staffReportsModule.ShiftDetails);
-
-
+router.post("/api/allstaffsnursereport/reports", staffReportsModule.AllStaffNurseReport);
 
 module.exports = router; // export to use in server.js
