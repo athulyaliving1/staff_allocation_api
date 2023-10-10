@@ -22,6 +22,7 @@ router.get("/api/branches/location", branchesModule.branchlocation);
 router.get("/api/branches/getTowers", branchesModule.getTower);
 router.get("/api/branches/masterTower", branchesModule.getmasterTower);
 router.get("/api/branches/floor", branchesModule.getFloor);
+router.get("/api/branches/masterfloors", branchesModule.getMasterFloor);
 router.get(
   "/api/branches/section/:branch_id/:floor",
   branchesModule.getSection

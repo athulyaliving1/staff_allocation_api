@@ -239,6 +239,26 @@ const getRooms = (req, res) => {
   });
 };
 
+
+const getMasterFloor = (req, res) => {
+  const masterFloorId = req.query.masterfloorid; // Access the query parameter
+
+  console.log(masterFloorId);
+
+  const query = `SELECT * FROM master_floors WHERE id=${masterFloorId}`;
+  console.log(query);
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching master floor:", err);
+      res.status(500).json({ error: "Error fetching master floor" });
+    } else {
+      res.json(result);
+      console.log(result);
+    }
+  });
+};
+
+
 const getBranches = (req, res) => {
   const query = `SELECT DISTINCT  id,branch_name,branch_code FROM master_branches`;
   console.log(query);
@@ -267,4 +287,5 @@ module.exports = {
   getBranches,
   getmasterTower,
   getSection1,
+  getMasterFloor
 };
