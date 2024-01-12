@@ -17,20 +17,26 @@ const getcountries = (req, res) => {
 };
 
 const getstates = (req, res) => {
-  const { branch_country_id } = req.query;
+  const { country_id } = req.query;
 
   // console.log("branch_country_id:", branch_country_id);
 
-  const query = `SELECT DISTINCT branch_state,branch_state_id FROM master_branches WHERE branch_country_id = ${branch_country_id}`;
+  if (!country_id) {
+    return res.status(400).json({ error: "country_id is required" });
+  } else {
+    const query = `SELECT DISTINCT branch_state,branch_state_id FROM master_branches WHERE branch_country_id = ${branch_country_id}`;
 
-  db.query(query, [branch_country_id], (err, results) => {
-    if (err) {
-      console.error("Error fetching states:", err);
-      res.status(500).send("An error occurred");
-    } else {
-      res.json(results);
-    }
-  });
+    db.query(query, [branch_country_id], (err, results) => {
+      if (err) {
+        console.error("Error fetching states:", err);
+        res.status(500).send("An error occurred");
+      } else {
+        res.json(results);
+      }
+    });
+  }
+
+
 };
 
 // API endpoint to fetch cities based on the state
@@ -54,37 +60,53 @@ const getcities = (req, res) => {
 const branchlocation = (req, res) => {
   const { branch_city_id } = req.query;
 
-  const query = `SELECT DISTINCT id,branch_name FROM master_branches WHERE branch_city_id=${branch_city_id}`;
+  if (!branch_city_id) {
+    return res
+      .status(400)
+      .json({ error: "Both branch_city_id " });
+  } else {
+    const query = `SELECT DISTINCT id,branch_name FROM master_branches WHERE branch_city_id=${branch_city_id}`;
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("Error fetching location:", err);
-      res.status(500).send("An error occurred");
-    } else {
-      res.json(results);
-      // console.log(results);
-    }
-  });
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Error fetching location:", err);
+        res.status(500).send("An error occurred");
+      } else {
+        res.json(results);
+        // console.log(results);
+      }
+    });
+  }
+
+
 };
 
 const getTower = (req, res) => {
   const { branch_id } = req.query;
 
-  const query = `SELECT DISTINCT mb.id,mfs.tower as towerno, mfs.branch_id,mb.branch_name, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
+  if (!branch_id) {
+    return res.status(400).json({ error: "branch_id is required" });
+  }
+  else {
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("Error fetching tower:", err);
-      res.status(500).send("An error occurred");
-    } else {
-      res.json(results);
-      console.log(results);
-    }
-  });
+    const query = `SELECT DISTINCT mb.id,mfs.tower as towerno, mfs.branch_id,mb.branch_name, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
+
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Error fetching tower:", err);
+        res.status(500).send("An error occurred");
+      } else {
+        res.json(results);
+        console.log(results);
+      }
+    });
+  }
+
+
 };
 
 const getmasterTower = (req, res) => {
-  const { tower_id } = req.query;
+  // const { tower_id } = req.query;
 
   const query = `SELECT * FROM master_towers`;
 
@@ -273,6 +295,143 @@ const getBranches = (req, res) => {
   });
 };
 
+
+const getRoomNumbers = (req, res) => {
+
+  const query = `SELECT master_beds.id,master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 1;`;
+
+  console.log(query);
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching branches:", err);
+      res.status(500).json({ error: "Error fetching branches" });
+    } else {
+      res.json(result);
+      console.log(result);
+    }
+  });
+}
+
+
+const getPatientDetails = (req, res) => {
+  const room_Id = req.query.roomId;
+
+  if (!room_Id) {
+    console.error("Invalid room ID:", room_Id);
+    return res.status(400).json({ error: "Invalid room ID" });
+  } else {
+    console.log("Valid room ID:", room_Id);
+
+    const query = `
+      SELECT 
+        
+        master_branches.branch_name,
+        master_rooms.room_number,
+        patients.patient_id,
+        CONCAT(patients.first_name, patients.middle_name, patients.last_name) AS full_name,
+        patients.mobile_number,
+        master_beds.bed_number,
+        leads.id AS lead_id,
+        patient_schedules.id AS patients_schedules_id
+      FROM   
+        leads
+        JOIN patients ON leads.patient_id = patients.id
+        LEFT JOIN master_branches ON patients.branch_id = master_branches.id
+        LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
+        LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
+        LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
+      WHERE 
+        leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE ? || '%'
+      GROUP BY 
+        patients.patient_id;`;
+
+    console.log("Query:", query);
+
+    console.log("Before query execution - room_Id:", room_Id);
+
+    db.query(query, ['PRG - ' + room_Id], (err, result) => {
+      if (err) {
+        console.error("Error fetching patient details:", err);
+        res.status(500).json({ error: "Error fetching patient details" });
+      } else {
+        res.json(result);
+        console.log(result);
+      }
+    });
+  }
+}
+
+
+
+const postPatientVitals = (req, res) => {
+  const query = `
+    INSERT INTO patient_activity_vitals (
+      patient_id,
+      lead_id,
+      schedule_id,
+      marked_by,
+      schedule_date,
+      activity_timing,
+      activity_bp_systole,
+      activity_bp_diastole,
+      activity_temp,
+      activity_pulse,
+      activity_resp,
+      activity_pain_score,
+      activity_pain_location_description,
+      activity_spo,
+      activity_solid_intake,
+      activity_sugar_check,
+      cbg_result,
+      cbg_sign,
+      fbs_result,
+      fbs_sign,
+      ppbs_result,
+
+      ppbs_sign,
+      activity_urine_output,
+      activity_motion,
+      activity_intake,
+      activity_output
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+  `;
+
+  const values = Object.values(req.query);
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error inserting data into patient_activity_vitals:", err);
+      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+    } else {
+      res.json({ success: true, message: "Data inserted successfully" });
+    }
+  });
+};
+
+getPatientVitals = (req, res) => {
+  console.log(typeof res); // Debug statement
+  const query = "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching patient vitals:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.table(results);
+    }
+  });
+};
+
+
+
+
+
+
+
+
+
+
 module.exports = {
   getcities,
   getstates,
@@ -287,5 +446,11 @@ module.exports = {
   getBranches,
   getmasterTower,
   getSection1,
-  getMasterFloor
+  getMasterFloor,
+  getRoomNumbers,
+  getPatientDetails,
+  postPatientVitals,
+  getPatientVitals
+
+
 };

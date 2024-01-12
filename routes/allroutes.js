@@ -142,9 +142,31 @@ router.post(
 
 router.post("/api/dutywisereport/reports", staffReportsModule.DutyWiseReport);
 
-router.post("/api/shiftdetails/reports", staffReportsModule.StaffNurseReport,
+router.post("/api/shiftdetails/reports", staffReportsModule.StaffNurseReport);
+
+router.post(
+  "/api/allstaffsnursereport/reports",
+  staffReportsModule.AllStaffNurseReport
 );
 
-router.post("/api/allstaffsnursereport/reports", staffReportsModule.AllStaffNurseReport);
+
+//What Flow +
+
+router.get("/api/getroomnumbers", branchesModule.getRoomNumbers);
+router.get("/api/getpatientdetails", branchesModule.getPatientDetails);
+router.post("/api/postpatientvitals", branchesModule.postPatientVitals);
+router.get("/api/getpatientvitals", branchesModule.getPatientVitals);
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router; // export to use in server.js
