@@ -15,7 +15,13 @@ const getcountries = (req, res) => {
     }
   });
 };
-
+/**
+ *
+ *
+ * @param {*} req
+ * @param {*} res
+ * @return {*} 
+ */
 const getstates = (req, res) => {
   const { country_id } = req.query;
 
@@ -321,8 +327,8 @@ const getPatientDetails = (req, res) => {
     return res.status(400).json({ error: "Invalid room ID" });
   } else {
     console.log("Valid room ID:", room_Id);
-
-    const query = `
+/** @type {*} */
+const query = `
       SELECT 
         
         master_branches.branch_name,
@@ -332,7 +338,9 @@ const getPatientDetails = (req, res) => {
         patients.mobile_number,
         master_beds.bed_number,
         leads.id AS lead_id,
-        patient_schedules.id AS patients_schedules_id
+        patient_schedules.id AS patients_schedules_id,
+        patients.enquirer_name,
+        patients.relationship_with_patient
       FROM   
         leads
         JOIN patients ON leads.patient_id = patients.id
