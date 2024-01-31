@@ -20,7 +20,7 @@ const getcountries = (req, res) => {
  *
  * @param {*} req
  * @param {*} res
- * @return {*} 
+ * @return {*}
  */
 const getstates = (req, res) => {
   const { country_id } = req.query;
@@ -41,8 +41,6 @@ const getstates = (req, res) => {
       }
     });
   }
-
-
 };
 
 // API endpoint to fetch cities based on the state
@@ -67,9 +65,7 @@ const branchlocation = (req, res) => {
   const { branch_city_id } = req.query;
 
   if (!branch_city_id) {
-    return res
-      .status(400)
-      .json({ error: "Both branch_city_id " });
+    return res.status(400).json({ error: "Both branch_city_id " });
   } else {
     const query = `SELECT DISTINCT id,branch_name FROM master_branches WHERE branch_city_id=${branch_city_id}`;
 
@@ -83,8 +79,6 @@ const branchlocation = (req, res) => {
       }
     });
   }
-
-
 };
 
 const getTower = (req, res) => {
@@ -92,9 +86,7 @@ const getTower = (req, res) => {
 
   if (!branch_id) {
     return res.status(400).json({ error: "branch_id is required" });
-  }
-  else {
-
+  } else {
     const query = `SELECT DISTINCT mb.id,mfs.tower as towerno, mfs.branch_id,mb.branch_name, master_towers.tower FROM master_branches mb JOIN master_floor_section mfs ON mb.id = mfs.branch_id join master_towers on mfs.tower=master_towers.id WHERE mfs.branch_id = ${branch_id}; `;
 
     db.query(query, (err, results) => {
@@ -107,8 +99,6 @@ const getTower = (req, res) => {
       }
     });
   }
-
-
 };
 
 const getmasterTower = (req, res) => {
@@ -267,7 +257,6 @@ const getRooms = (req, res) => {
   });
 };
 
-
 const getMasterFloor = (req, res) => {
   const masterFloorId = req.query.masterfloorid; // Access the query parameter
 
@@ -286,7 +275,6 @@ const getMasterFloor = (req, res) => {
   });
 };
 
-
 const getBranches = (req, res) => {
   const query = `SELECT DISTINCT  id,branch_name,branch_code FROM master_branches`;
   console.log(query);
@@ -301,9 +289,7 @@ const getBranches = (req, res) => {
   });
 };
 
-
 const getRoomNumbers = (req, res) => {
-
   const query = `SELECT master_beds.id,master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 1;`;
 
   console.log(query);
@@ -316,8 +302,7 @@ const getRoomNumbers = (req, res) => {
       console.log(result);
     }
   });
-}
-
+};
 
 const getPatientDetails = (req, res) => {
   const room_Id = req.query.roomId;
@@ -327,8 +312,8 @@ const getPatientDetails = (req, res) => {
     return res.status(400).json({ error: "Invalid room ID" });
   } else {
     console.log("Valid room ID:", room_Id);
-/** @type {*} */
-const query = `
+    /** @type {*} */
+    const query = `
       SELECT 
         
         master_branches.branch_name,
@@ -338,6 +323,7 @@ const query = `
         patients.mobile_number,
         master_beds.bed_number,
         leads.id AS lead_id,
+        leads.patient_id AS patient_id,
         patient_schedules.id AS patients_schedules_id,
         patients.enquirer_name,
         patients.relationship_with_patient
@@ -357,7 +343,7 @@ const query = `
 
     console.log("Before query execution - room_Id:", room_Id);
 
-    db.query(query, ['PRG - ' + room_Id], (err, result) => {
+    db.query(query, ["PRG - " + room_Id], (err, result) => {
       if (err) {
         console.error("Error fetching patient details:", err);
         res.status(500).json({ error: "Error fetching patient details" });
@@ -367,9 +353,7 @@ const query = `
       }
     });
   }
-}
-
-
+};
 
 const postPatientVitals = (req, res) => {
   const query = `
@@ -409,7 +393,9 @@ const postPatientVitals = (req, res) => {
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error inserting data into patient_activity_vitals:", err);
-      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+      res
+        .status(500)
+        .json({ error: "Error inserting data into patient_activity_vitals" });
     } else {
       res.json({ success: true, message: "Data inserted successfully" });
     }
@@ -418,7 +404,8 @@ const postPatientVitals = (req, res) => {
 
 getPatientVitals = (req, res) => {
   console.log(typeof res); // Debug statement
-  const query = "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
+  const query =
+    "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
 
   db.query(query, (err, results) => {
     if (err) {
@@ -431,14 +418,84 @@ getPatientVitals = (req, res) => {
   });
 };
 
+getPatientMedicines = (req, res) => {
+  const patient_id = req.query.patient_id;
 
+  const query = `
+  SELECT DISTINCT
+  leads.id AS leads_id,
+  patient_medicines.patient_id,
+  master_medicine_inventory.medicine_name,
+  patient_medicines.master_medicine_inventory_id,
+  patient_medicines.dosage,
+  patient_medicines.unit_of_dosage,
+  patient_medicines.frequency,
+  patient_medicines.meal,
+  patient_medicines.note
 
+  
+FROM patient_medicines
+JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id = master_medicine_inventory.id
+JOIN leads ON patient_medicines.patient_id = leads.patient_id
+    WHERE patient_medicines.patient_id = ?
+`;
 
+  db.query(query, [patient_id], (err, results) => {
+    if (err) {
+      console.error("Error fetching patient medicines:", err);
+      return res.status(500).send("An error occurred");
+    }
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .send("No medicines found for the given patient ID");
+    }
+    res.json(results);
+    // Console.table is helpful but consider commenting it out in production
+    console.table(results);
+  });
+};
 
+postPatientMedicines = (req, res) => {
+  const values = Object.values(req.query).map((value) => {
+    // Convert to appropriate data type, e.g., integer or null if the value is an empty string
+    return value === "" ? null : value;
+  });
 
+  if (values.includes(null)) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required and cannot be empty." });
+  }
 
+  const query = `
+  INSERT INTO patient_activity_medicines(
+    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id, 
+    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date, 
+    activity_timing, activity_comment, created_at, updated_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`;
 
-
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(
+        "Error inserting data into patient_medicines_activity:",
+        err
+      );
+      res
+        .status(500)
+        .json({
+          error: "Error inserting data into patient_medicines_activity",
+        });
+    } else {
+      res.json({
+        success: true,
+        message: "Data inserted successfully",
+        result: result,
+      });
+    }
+  });
+};
 
 module.exports = {
   getcities,
@@ -458,7 +515,7 @@ module.exports = {
   getRoomNumbers,
   getPatientDetails,
   postPatientVitals,
-  getPatientVitals
-
-
+  getPatientVitals,
+  getPatientMedicines,
+  postPatientMedicines,
 };

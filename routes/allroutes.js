@@ -156,7 +156,8 @@ router.get("/api/getroomnumbers", branchesModule.getRoomNumbers);
 router.get("/api/getpatientdetails", branchesModule.getPatientDetails);
 router.post("/api/postpatientvitals", branchesModule.postPatientVitals);
 router.get("/api/getpatientvitals", branchesModule.getPatientVitals);
-
+router.get ("/api/getpatientmedcines",branchesModule. getPatientMedicines);
+router.post("/api/postpatientmedcines",branchesModule. postPatientMedicines);
 
 
 
