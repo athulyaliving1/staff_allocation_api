@@ -431,7 +431,8 @@ getPatientMedicines = (req, res) => {
   patient_medicines.unit_of_dosage,
   patient_medicines.frequency,
   patient_medicines.meal,
-  patient_medicines.note
+  patient_medicines.note,
+  patient_medicines.medicine_time
 
   
 FROM patient_medicines
@@ -439,6 +440,22 @@ JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id
 JOIN leads ON patient_medicines.patient_id = leads.patient_id
     WHERE patient_medicines.patient_id = ?
 `;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   db.query(query, [patient_id], (err, results) => {
     if (err) {
@@ -496,6 +513,9 @@ postPatientMedicines = (req, res) => {
     }
   });
 };
+
+
+
 
 module.exports = {
   getcities,
