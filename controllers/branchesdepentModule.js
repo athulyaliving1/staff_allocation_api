@@ -450,8 +450,8 @@ getPatientVitals = (req, res) => {
 };
 
 getPatientMedicines = (req, res) => {
-  const patient_id = req.body.patient_id;
-  const timeSlots = req.body.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
+  const patient_id = req.query.patient_id;
+  const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
 
   const query = `
     SELECT DISTINCT
@@ -515,11 +515,21 @@ getPatientMedicines = (req, res) => {
 
 
 postPatientMedicines = (req, res) => {
-  const values = Object.values(req.query).map((value) => {
-    // Convert to appropriate data type, e.g., integer or null if the value is an empty string
-    return value === "" ? null : value;
-  });
+  // Assuming the body contains the fields directly
+  const {
+    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
+    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
+    activity_timing, activity_comment
+  } = req.body;
 
+  // Prepare values array for insertion, converting empty strings to null
+  const values = [
+    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
+    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
+    activity_timing, activity_comment
+  ].map(value => value === "" ? null : value);
+
+  // Check if any required field is missing or empty
   if (values.includes(null)) {
     return res
       .status(400)
@@ -527,24 +537,17 @@ postPatientMedicines = (req, res) => {
   }
 
   const query = `
-  INSERT INTO patient_activity_medicines(
-    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id, 
-    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date, 
-    activity_timing, activity_comment, created_at, updated_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`;
+    INSERT INTO patient_activity_medicines(
+      patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
+      dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
+      activity_timing, activity_comment, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+  `;
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error(
-        "Error inserting data into patient_medicines_activity:",
-        err
-      );
-      res
-        .status(500)
-        .json({
-          error: "Error inserting data into patient_medicines_activity",
-        });
+      console.error("Error inserting data into patient_medicines_activity:", err);
+      res.status(500).json({ error: "Error inserting data into patient_medicines_activity" });
     } else {
       res.json({
         success: true,
@@ -554,7 +557,6 @@ postPatientMedicines = (req, res) => {
     }
   });
 };
-
 
 
 
