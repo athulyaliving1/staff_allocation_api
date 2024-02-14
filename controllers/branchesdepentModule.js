@@ -357,35 +357,36 @@ const getPatientDetails = (req, res) => {
 
 const postPatientVitals = (req, res) => {
   const query = `
-    INSERT INTO patient_activity_vitals (
-      patient_id,
-      lead_id,
-      schedule_id,
-      marked_by,
-      schedule_date,
-      activity_timing,
-      activity_bp_systole,
-      activity_bp_diastole,
-      activity_temp,
-      activity_pulse,
-      activity_resp,
-      activity_pain_score,
-      activity_pain_location_description,
-      activity_spo,
-      activity_solid_intake,
-      activity_sugar_check,
-      cbg_result,
-      cbg_sign,
-      fbs_result,
-      fbs_sign,
-      ppbs_result,
-
-      ppbs_sign,
-      activity_urine_output,
-      activity_motion,
-      activity_intake,
-      activity_output
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+  patient_id,
+  lead_id,
+  schedule_id,
+  marked_by,
+  schedule_date,
+  activity_timing,
+  activity_bp_systole,
+  activity_bp_diastole,
+  activity_temp,
+  activity_pulse,
+  activity_resp,
+  activity_pain_score,
+  activity_pain_location_description,
+  activity_spo,
+  activity_solid_intake,
+  activity_sugar_check,
+  cbg_result,
+  cbg_sign,
+  fbs_result,
+  fbs_sign,
+  ppbs_result,
+  ppbs_sign,
+  activity_urine_output,
+  activity_motion,
+  activity_intake,
+  activity_output,
+  created_at,
+  updated_at,
+  deleted_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
   `;
 
   const values = Object.values(req.query);
@@ -440,6 +441,7 @@ JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id
 JOIN leads ON patient_medicines.patient_id = leads.patient_id
     WHERE patient_medicines.patient_id = ?
 `;
+
 
 
 
@@ -513,6 +515,10 @@ postPatientMedicines = (req, res) => {
     }
   });
 };
+
+
+
+
 
 
 
