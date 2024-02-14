@@ -356,52 +356,82 @@ const getPatientDetails = (req, res) => {
 };
 
 const postPatientVitals = (req, res) => {
+  // Corrected SQL query with `INSERT INTO` statement
   const query = `
-  patient_id,
-  lead_id,
-  schedule_id,
-  marked_by,
-  schedule_date,
-  activity_timing,
-  activity_bp_systole,
-  activity_bp_diastole,
-  activity_temp,
-  activity_pulse,
-  activity_resp,
-  activity_pain_score,
-  activity_pain_location_description,
-  activity_spo,
-  activity_solid_intake,
-  activity_sugar_check,
-  cbg_result,
-  cbg_sign,
-  fbs_result,
-  fbs_sign,
-  ppbs_result,
-  ppbs_sign,
-  activity_urine_output,
-  activity_motion,
-  activity_intake,
-  activity_output,
-  created_at,
-  updated_at,
-  deleted_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
+    INSERT INTO patient_activity_vitals (
+      patient_id,
+      lead_id,
+      schedule_id,
+      marked_by,
+      schedule_date,
+      activity_timing,
+      activity_bp_systole,
+      activity_bp_diastole,
+      activity_temp,
+      activity_pulse,
+      activity_resp,
+      activity_pain_score,
+      activity_pain_location_description,
+      activity_spo,
+      activity_solid_intake,
+      activity_sugar_check,
+      cbg_result,
+      cbg_sign,
+      fbs_result,
+      fbs_sign,
+      ppbs_result,
+      ppbs_sign,
+      activity_urine_output,
+      activity_motion,
+      activity_intake,
+      activity_output,
+      created_at,
+      updated_at,
+      deleted_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
   `;
 
-  const values = Object.values(req.query);
+  // Assuming you're receiving data as JSON in the POST request body
+  const values = [
+    req.query.patient_id,
+    req.query.lead_id,
+    req.query.schedule_id,
+    req.query.marked_by,
+    req.query.schedule_date,
+    req.query.activity_timing,
+    req.query.activity_bp_systole,
+    req.query.activity_bp_diastole,
+    req.query.activity_temp,
+    req.query.activity_pulse,
+    req.query.activity_resp,
+    req.query.activity_pain_score,
+    req.query.activity_pain_location_description,
+    req.query.activity_spo,
+    req.query.activity_solid_intake,
+    req.query.activity_sugar_check,
+    req.query.cbg_result,
+    req.query.cbg_sign,
+    req.query.fbs_result,
+    req.query.fbs_sign,
+    req.query.ppbs_result,
+    req.query.ppbs_sign,
+    req.query.activity_urine_output,
+    req.query.activity_motion,
+    req.query.activity_intake,
+    req.query.activity_output,
+    // created_at and updated_at will be automatically set to the current time, and deleted_at to NULL
+  ];
 
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error inserting data into patient_activity_vitals:", err);
-      res
-        .status(500)
-        .json({ error: "Error inserting data into patient_activity_vitals" });
+      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
     } else {
       res.json({ success: true, message: "Data inserted successfully" });
     }
   });
 };
+
 
 getPatientVitals = (req, res) => {
   console.log(typeof res); // Debug statement
