@@ -451,43 +451,24 @@ getPatientVitals = (req, res) => {
 
 getPatientMedicines = (req, res) => {
   const patient_id = req.query.patient_id;
+  const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
 
   const query = `
-  SELECT DISTINCT
-  leads.id AS leads_id,
-  patient_medicines.patient_id,
-  master_medicine_inventory.medicine_name,
-  patient_medicines.master_medicine_inventory_id,
-  patient_medicines.dosage,
-  patient_medicines.unit_of_dosage,
-  patient_medicines.frequency,
-  patient_medicines.meal,
-  patient_medicines.note,
-  patient_medicines.medicine_time
-
-  
-FROM patient_medicines
-JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id = master_medicine_inventory.id
-JOIN leads ON patient_medicines.patient_id = leads.patient_id
-    WHERE patient_medicines.patient_id = ?
-`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    SELECT DISTINCT
+      leads.id AS leads_id,
+      patient_medicines.patient_id,
+      master_medicine_inventory.medicine_name,
+      patient_medicines.master_medicine_inventory_id,
+      patient_medicines.dosage,
+      patient_medicines.unit_of_dosage,
+      patient_medicines.frequency,
+      patient_medicines.meal,
+      patient_medicines.note,
+      patient_medicines.medicine_time
+    FROM patient_medicines
+    JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id = master_medicine_inventory.id
+    JOIN leads ON patient_medicines.patient_id = leads.patient_id
+    WHERE patient_medicines.patient_id = ?`;
 
   db.query(query, [patient_id], (err, results) => {
     if (err) {
@@ -495,15 +476,43 @@ JOIN leads ON patient_medicines.patient_id = leads.patient_id
       return res.status(500).send("An error occurred");
     }
     if (results.length === 0) {
-      return res
-        .status(404)
-        .send("No medicines found for the given patient ID");
+      return res.status(404).send("No medicines found for the given patient ID.");
     }
-    res.json(results);
-    // Console.table is helpful but consider commenting it out in production
-    console.table(results);
+
+    
+    const slotRanges = {
+    breakfast: { start: 5*60, end: 11*59 }, // 05:00 - 11:59
+      lunch: { start: 12*60, end: 16*59 }, // 12:00 - 16:59
+      dinner: { start: 20*60, end: 23*59 } // 20:00 - 23:59
+    };
+
+    // Filter function to check if a time is within the requested slots
+    const filterByTimeSlot = (medicine) => {
+      const times = medicine.medicine_time.split(',');
+      return times.some(time => {
+        const [hours, minutes] = time.split(':').map(n => parseInt(n, 10));
+        const timeInMinutes = hours * 60 + minutes;
+        return timeSlots.some(slot => {
+          const range = slotRanges[slot];
+          return timeInMinutes >= range.start && timeInMinutes <= range.end;
+        });
+      });
+    };
+
+    const filteredResults = results.filter(filterByTimeSlot).map((item, index) => ({
+      sl_no: index + 1, // Adding a serial number starting from 1
+      ...item
+    }));
+
+    // Check if filtered results are empty and return a specific response
+    if (filteredResults.length === 0) {
+      return res.status(404).send("No data found in the requested time slots.");
+    }
+
+    res.json(filteredResults);
   });
 };
+
 
 postPatientMedicines = (req, res) => {
   const values = Object.values(req.query).map((value) => {
