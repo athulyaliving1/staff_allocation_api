@@ -450,8 +450,8 @@ getPatientVitals = (req, res) => {
 };
 
 getPatientMedicines = (req, res) => {
-  const patient_id = req.query.patient_id;
-  const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
+  const patient_id = req.body.patient_id;
+  const timeSlots = req.body.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
 
   const query = `
     SELECT DISTINCT
