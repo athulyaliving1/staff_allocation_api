@@ -1,4 +1,5 @@
-var mysql = require("mysql");
+const mysql = require('mysql2/promise');
+
 var config;
 config = {
   mysql_pool: mysql.createPool({
@@ -7,6 +8,8 @@ config = {
     password: "r3pbWhs8psb5nitZjlpDvg",
     database: "theatgg6_sal_subscriber102",
     multipleStatements: true,
+    waitForConnections: true,
+    queueLimit: 0
   }),
   // mysql_pool : mysql.createPool({
   //     host     : '162.241.85.121',

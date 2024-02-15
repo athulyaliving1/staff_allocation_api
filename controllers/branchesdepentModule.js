@@ -514,49 +514,48 @@ getPatientMedicines = (req, res) => {
 };
 
 
-postPatientMedicines = (req, res) => {
-  // Assuming the body contains the fields directly
-  const {
-    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
-    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
-    activity_timing, activity_comment
-  } = req.body;
+async function postPatientMedicines(req, res) {
+  const medicineEntries = req.body; // Assuming this is your JSON array
 
-  // Prepare values array for insertion, converting empty strings to null
-  const values = [
-    patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
-    dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
-    activity_timing, activity_comment
-  ].map(value => value === "" ? null : value);
+  // console.log(medicineEntries);
 
-  // Check if any required field is missing or empty
-  if (values.includes(null)) {
-    return res
-      .status(400)
-      .json({ error: "All fields are required and cannot be empty." });
-  }
+  let connection;
 
-  const query = `
-    INSERT INTO patient_activity_medicines(
-      patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
-      dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
-      activity_timing, activity_comment, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-  `;
+  try {
+    connection = await db.getConnection();
 
-  db.query(query, values, (err, result) => {
-    if (err) {
-      console.error("Error inserting data into patient_medicines_activity:", err);
-      res.status(500).json({ error: "Error inserting data into patient_medicines_activity" });
-    } else {
-      res.json({
-        success: true,
-        message: "Data inserted successfully",
-        result: result,
-      });
+    // console.log(connection);
+
+    await connection.beginTransaction();
+
+    const query = `
+      INSERT INTO patient_activity_medicines(
+        patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
+        dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
+        activity_timing, activity_comment, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    `;
+
+    for (const entry of medicineEntries) {
+      await connection.execute(query, [
+        entry.patient_id, entry.lead_id, entry.schedule_id, entry.marked_by, entry.master_medicine_inventory_id,
+        entry.dosage, entry.unit_of_dosage, entry.frequency, entry.meal, entry.sort_position, entry.schedule_date,
+        entry.activity_timing, entry.activity_comment
+      ]);
     }
-  });
-};
+
+    await connection.commit();
+    res.json({ success: true, message: "All data inserted successfully" });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Failed to insert medicine entries:", err);
+    res.status(500).json({ error: "Failed to insert medicine entries" });
+  } finally {
+    if (connection) await connection.release();
+  }
+}
+
+
 
 
 
