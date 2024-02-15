@@ -454,14 +454,14 @@ getPatientMedicines = (req, res) => {
     SELECT DISTINCT
       leads.id AS leads_id,
       patient_medicines.patient_id,
-      master_medicine_inventory.medicine_name,
+      master_medicine_inventory.medicine_name AS  title,
       patient_medicines.master_medicine_inventory_id,
       patient_medicines.dosage,
       patient_medicines.unit_of_dosage,
       patient_medicines.frequency,
       patient_medicines.meal,
       patient_medicines.note,
-      patient_medicines.medicine_time
+      patient_medicines.medicine_time 
     FROM patient_medicines
     JOIN master_medicine_inventory ON patient_medicines.master_medicine_inventory_id = master_medicine_inventory.id
     JOIN leads ON patient_medicines.patient_id = leads.patient_id
@@ -529,8 +529,14 @@ const getPatientMedicineSchedule = async (req, res) => {
     if (err) {
       console.error("Error fetching patient activity medicines:", err);
       return res.status(500).json({ error: "An error occurred" }); // Use JSON for consistent response format
-    } else {
-      res.json(results); // 'results' is the correct variable name
+    } else {      
+      // res.json(results); // 'results' is the correct variable name
+      const filteredResults = results.map((item, index) => ({
+        sl_no: index + 1, // Adding a serial number starting from 1
+        ...item
+      }));
+  
+        res.json(filteredResults);
       console.log("Fetching patient activity medicines successful");
     }
   });
