@@ -511,6 +511,42 @@ getPatientMedicines = (req, res) => {
 };
 
 
+
+
+const getPatientMedicineSchedule = async (req, res) => {
+  const { start_date,end_date } = req.query;
+  console.log(start_date, end_date);
+   
+  // Validate start_date and end_date parameters
+  if (!start_date || !end_date) {
+    return res.status(400).json({ error: 'Missing required parameters start_date or end_date.' });
+  }
+
+  // Use parameterized queries to prevent SQL injection
+  const query = `SELECT * FROM patient_activity_medicines WHERE schedule_date BETWEEN ? AND ?;`;
+
+  db.query(query, [start_date, end_date], (err, results) => { // Note: Use 'results' here for consistency
+    if (err) {
+      console.error("Error fetching patient activity medicines:", err);
+      return res.status(500).json({ error: "An error occurred" }); // Use JSON for consistent response format
+    } else {
+      res.json(results); // 'results' is the correct variable name
+      console.log("Fetching patient activity medicines successful");
+    }
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
+
 async function postPatientMedicines(req, res) {
   const medicineEntries = req.body; // Assuming this is your JSON array
 
@@ -560,6 +596,13 @@ async function postPatientMedicines(req, res) {
 
 
 
+
+
+
+
+
+
+
 module.exports = {
   getcities,
   getstates,
@@ -581,4 +624,5 @@ module.exports = {
   getPatientVitals,
   getPatientMedicines,
   postPatientMedicines,
+  getPatientMedicineSchedule
 };

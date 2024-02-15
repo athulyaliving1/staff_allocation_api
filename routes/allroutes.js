@@ -158,6 +158,7 @@ router.post("/api/postpatientvitals", branchesModule.postPatientVitals);
 router.get("/api/getpatientvitals", branchesModule.getPatientVitals);
 router.get ("/api/getpatientmedcines",branchesModule. getPatientMedicines);
 router.post("/api/postpatientmedcines",branchesModule. postPatientMedicines);
+router.get("/api/getpatientmedcinesschedule",branchesModule. getPatientMedicineSchedule);
 
 
 
