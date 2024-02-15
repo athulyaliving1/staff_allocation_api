@@ -1,4 +1,4 @@
-var mysql = require("mysql");
+const mysql = require('mysql2/promise');
 var config;
 config = {
   mysql_pool: mysql.createPool({

@@ -1,4 +1,5 @@
 var db = require("../db/connection.js").mysql_pool;
+var dbconnection = require("../db/dbconnection.js");
 
 // API endpoint to fetch countries
 
@@ -15,13 +16,9 @@ const getcountries = (req, res) => {
     }
   });
 };
-/**
- *
- *
- * @param {*} req
- * @param {*} res
- * @return {*}
- */
+
+
+
 const getstates = (req, res) => {
   const { country_id } = req.query;
 
@@ -522,7 +519,7 @@ async function postPatientMedicines(req, res) {
   let connection;
 
   try {
-    connection = await db.getConnection();
+    connection = await dbconnection.getConnection();
 
     // console.log(connection);
 
