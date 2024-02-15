@@ -1,5 +1,5 @@
 var db = require("../db/connection.js").mysql_pool;
-var dbconnection = require("../db/dbconnection.js");
+var dbconnection = require("../db/dbconnection.js").mysql_pool;
 
 // API endpoint to fetch countries
 
