@@ -450,6 +450,9 @@ getPatientMedicines = (req, res) => {
   const patient_id = req.query.patient_id;
   const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
 
+
+
+
   const query = `
     SELECT DISTINCT
       leads.id AS leads_id,
@@ -497,7 +500,7 @@ getPatientMedicines = (req, res) => {
     };
 
     const filteredResults = results.filter(filterByTimeSlot).map((item, index) => ({
-      sl_no: index + 1, // Adding a serial number starting from 1
+      id: index + 1, // Adding a serial number starting from 1
       ...item
     }));
 
@@ -532,7 +535,7 @@ const getPatientMedicineSchedule = async (req, res) => {
     } else {      
       // res.json(results); // 'results' is the correct variable name
       const filteredResults = results.map((item, index) => ({
-        sl_no: index + 1, // Adding a serial number starting from 1
+        id: index + 1, // Adding a serial number starting from 1
         ...item
       }));
   
@@ -567,22 +570,27 @@ async function postPatientMedicines(req, res) {
 
     await connection.beginTransaction();
 
+    const currentDate = new Date().toISOString().slice(0, 10); // Gets current date in YYYY-MM-DD format
+    const currentTime = new Date().toTimeString().slice(0, 8); // Gets current time in HH:MM:SS format
+    
+
+
     const query = `
-      INSERT INTO patient_activity_medicines(
-        patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
-        dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
-        activity_timing, activity_comment, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-    `;
-
-    for (const entry of medicineEntries) {
-      await connection.execute(query, [
-        entry.patient_id, entry.lead_id, entry.schedule_id, entry.marked_by, entry.master_medicine_inventory_id,
-        entry.dosage, entry.unit_of_dosage, entry.frequency, entry.meal, entry.sort_position, entry.schedule_date,
-        entry.activity_timing, entry.activity_comment
-      ]);
-    }
-
+    INSERT INTO patient_activity_medicines(
+      patient_id, lead_id, schedule_id, marked_by, master_medicine_inventory_id,
+      dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
+      activity_timing, activity_comment, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+  `;
+  
+  for (const entry of medicineEntries) {
+    await connection.execute(query, [
+      entry.patient_id, entry.lead_id, entry.schedule_id, entry.marked_by, entry.master_medicine_inventory_id,
+      entry.dosage, entry.unit_of_dosage, entry.frequency, entry.meal, entry.sort_position, currentDate,
+      currentTime, entry.activity_comment
+    ]);
+  }
+  
     await connection.commit();
     res.json({ success: true, message: "All data inserted successfully" });
   } catch (err) {
