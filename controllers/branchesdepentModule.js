@@ -286,20 +286,54 @@ const getBranches = (req, res) => {
   });
 };
 
-const getRoomNumbers = (req, res) => {
-  const query = `SELECT master_beds.id,master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 1;`;
 
-  console.log(query);
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error("Error fetching branches:", err);
-      res.status(500).json({ error: "Error fetching branches" });
-    } else {
-      res.json(result);
-      console.log(result);
-    }
-  });
+const Mobile = [
+  {
+    "mobile_number": 1234567890,
+  },
+  {
+    "mobile_number": 9876543210,
+  },
+  {
+    "mobile_number": 9566420177,
+  },
+  {
+    "mobile_number": 8667702265,
+  },
+  {
+    "mobile_number": 8667633014,
+  },
+  {  
+    "mobile_number" : 9578137837
+  }
+];
+
+const getRoomNumbers = (req, res) => {
+  const MobileNumber = parseInt(req.query.mobile_number, 10); // Ensure it's an integer
+
+  // Check if the provided mobile number exists in the Mobile array
+  const mobileExists = Mobile.some(mobile => mobile.mobile_number === MobileNumber);
+
+  if (!mobileExists) {
+    console.error("Invalid Mobile number:", MobileNumber);
+    return res.status(400).json({ error: "Invalid Mobile number" });
+  } else {
+    const query = `SELECT master_beds.id, master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 1;`;
+
+    console.log(query);
+    // Assuming db.query is properly defined elsewhere in your code
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error fetching branches:", err);
+        return res.status(500).json({ error: "Error fetching branches" });
+      } else {
+        res.json(result);
+        console.log(result);
+      }
+    });
+  }
 };
+
 
 const getPatientDetails = (req, res) => {
   const room_Id = req.query.roomId;
