@@ -308,6 +308,8 @@ const Mobile = [
   }
 ];
 
+
+
 const getRoomNumbers = (req, res) => {
   const MobileNumber = parseInt(req.query.mobile_number, 10); // Ensure it's an integer
 
@@ -337,20 +339,25 @@ const getRoomNumbers = (req, res) => {
 
 const getPatientDetails = (req, res) => {
   const room_Id = req.query.roomId;
+  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+
+  // Check if mobileNumber is provided and valid
+  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+    console.error("Invalid or missing mobile number:", mobileNumber);
+    return res.status(400).json({ error: "Invalid or missing mobile number" });
+  }
 
   if (!room_Id) {
     console.error("Invalid room ID:", room_Id);
     return res.status(400).json({ error: "Invalid room ID" });
   } else {
     console.log("Valid room ID:", room_Id);
-    /** @type {*} */
     const query = `
       SELECT 
-        
         master_branches.branch_name,
         master_rooms.room_number,
         patients.patient_id,
-        CONCAT(patients.first_name, patients.middle_name, patients.last_name) AS full_name,
+        CONCAT(patients.first_name, ' ', COALESCE(patients.middle_name, ''), ' ', patients.last_name) AS full_name,
         patients.mobile_number,
         master_beds.bed_number,
         leads.id AS lead_id,
@@ -366,15 +373,13 @@ const getPatientDetails = (req, res) => {
         LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
         LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
       WHERE 
-        leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE ? || '%'
+        leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE ? || '%' AND patients.mobile_number = ?
       GROUP BY 
         patients.patient_id;`;
 
     console.log("Query:", query);
 
-    console.log("Before query execution - room_Id:", room_Id);
-
-    db.query(query, ["PRG - " + room_Id], (err, result) => {
+    db.query(query, ["PRG - " + room_Id, mobileNumber], (err, result) => {
       if (err) {
         console.error("Error fetching patient details:", err);
         res.status(500).json({ error: "Error fetching patient details" });
@@ -480,11 +485,30 @@ getPatientVitals = (req, res) => {
   });
 };
 
+
+
 getPatientMedicines = (req, res) => {
+
   const patient_id = req.query.patient_id;
   const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
+  
+  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
+  // Check if mobileNumber is provided and valid
+  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+    console.error("Invalid or missing mobile number:", mobileNumber);
+    return res.status(400).json({ error: "Invalid or missing mobile number" });
+  }
 
+  if(!patient_id){
+    console.error("Invalid or missing patient_id:", patient_id);
+    return res.status(400).json({ error: "Invalid or missing patient_id" });
+  }
+
+  if(!timeSlots){
+    console.error("Invalid or missing timeSlots:", timeSlots);
+    return res.status(400).json({ error: "Invalid or missing timeSlots" });
+  }
 
 
   const query = `
@@ -554,6 +578,15 @@ const getPatientMedicineSchedule = async (req, res) => {
   const { start_date,end_date } = req.query;
   console.log(start_date, end_date);
    
+  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+
+  // Check if mobileNumber is provided and valid
+  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+    console.error("Invalid or missing mobile number:", mobileNumber);
+    return res.status(400).json({ error: "Invalid or missing mobile number" });
+  }
+
+
   // Validate start_date and end_date parameters
   if (!start_date || !end_date) {
     return res.status(400).json({ error: 'Missing required parameters start_date or end_date.' });
