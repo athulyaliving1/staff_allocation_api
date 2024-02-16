@@ -339,6 +339,7 @@ const getRoomNumbers = (req, res) => {
 
 const getPatientDetails = (req, res) => {
   const room_Id = req.query.roomId;
+   
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
   // Check if mobileNumber is provided and valid
@@ -346,7 +347,6 @@ const getPatientDetails = (req, res) => {
     console.error("Invalid or missing mobile number:", mobileNumber);
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
-
   if (!room_Id) {
     console.error("Invalid room ID:", room_Id);
     return res.status(400).json({ error: "Invalid room ID" });
