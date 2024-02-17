@@ -489,6 +489,8 @@ getPatientVitals = (req, res) => {
 
 getPatientMedicines = (req, res) => {
 
+  console.log(req.params);
+
   const patient_id = req.query.patient_id;
   const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
   
@@ -505,11 +507,13 @@ getPatientMedicines = (req, res) => {
     return res.status(400).json({ error: "Invalid or missing patient_id" });
   }
 
-  if(!timeSlots){
+
+  if (!timeSlots || timeSlots.length === 0) {
     console.error("Invalid or missing timeSlots:", timeSlots);
     return res.status(400).json({ error: "Invalid or missing timeSlots" });
   }
-
+  
+ 
 
   const query = `
     SELECT DISTINCT
@@ -552,10 +556,16 @@ getPatientMedicines = (req, res) => {
         const timeInMinutes = hours * 60 + minutes;
         return timeSlots.some(slot => {
           const range = slotRanges[slot];
+          // Safety check to ensure 'range' is not undefined
+          if (!range) {
+            console.error(`Invalid slot: ${slot}`);
+            return false; // Skip this iteration as the slot is invalid
+          }
           return timeInMinutes >= range.start && timeInMinutes <= range.end;
         });
       });
     };
+    
 
     const filteredResults = results.filter(filterByTimeSlot).map((item, index) => ({
       id: index + 1, // Adding a serial number starting from 1
