@@ -3,29 +3,29 @@ var config;
 
 
 
- config = {
-  mysql_pool: mysql.createPool({
-    host: "dbaas-db-10787912-do-user-15527658-0.c.db.ondigitalocean.com",
-    user: "aaluser",
-    password: "AVNS_fHFeMdTzckFxMa3MSZF",
-    database: "theatgg6_sal_subscriber102", // replace with your actual database name
-    port: 25060,
-    multipleStatements: true,
-  }),
-
-
-
-
-
-
-// config = {
+//  config = {
 //   mysql_pool: mysql.createPool({
-//     host: "162.241.123.158",
-//     user: "theatgg6_shg",
-//     password: "r3pbWhs8psb5nitZjlpDvg",
-//     database: "theatgg6_sal_subscriber102",
+//     host: "dbaas-db-10787912-do-user-15527658-0.c.db.ondigitalocean.com",
+//     user: "aaluser",
+//     password: "AVNS_fHFeMdTzckFxMa3MSZF",
+//     database: "theatgg6_sal_subscriber102", // replace with your actual database name
+//     port: 25060,
 //     multipleStatements: true,
 //   }),
+
+
+
+
+
+
+config = {
+  mysql_pool: mysql.createPool({
+    host: "162.241.123.158",
+    user: "theatgg6_shg",
+    password: "r3pbWhs8psb5nitZjlpDvg",
+    database: "theatgg6_sal_subscriber102",
+    multipleStatements: true,
+  }),
 
 
   // mysql_pool : mysql.createPool({
