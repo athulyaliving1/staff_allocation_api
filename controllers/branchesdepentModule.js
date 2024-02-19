@@ -393,29 +393,29 @@ const getPatientDetails = (req, res) => {
   } else {
     console.log("Valid room ID:", room_Id);
     const query = `
-      SELECT 
-        master_branches.branch_name,
-        master_rooms.room_number,
-        patients.patient_id,
-        CONCAT(patients.first_name, ' ', COALESCE(patients.middle_name, ''), ' ', patients.last_name) AS full_name,
-        patients.mobile_number,
-        master_beds.bed_number,
-        leads.id AS lead_id,
-        leads.patient_id AS patient_id,
-        patient_schedules.id AS patients_schedules_id,
-        patients.enquirer_name,
-        patients.relationship_with_patient
-      FROM   
-        leads
-        JOIN patients ON leads.patient_id = patients.id
-        LEFT JOIN master_branches ON patients.branch_id = master_branches.id
-        LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
-        LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
-        LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
-      WHERE 
-        leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE ? || '%' AND patients.mobile_number = ?
-      GROUP BY 
-        patients.patient_id;`;
+    SELECT 
+    master_branches.branch_name,
+    ANY_VALUE(master_rooms.room_number) AS room_number,
+    patients.patient_id,
+    CONCAT(ANY_VALUE(patients.first_name), ' ', COALESCE(ANY_VALUE(patients.middle_name), ''), ' ', ANY_VALUE(patients.last_name)) AS full_name,
+    ANY_VALUE(patients.mobile_number) AS mobile_number,
+    ANY_VALUE(master_beds.bed_number) AS bed_number,
+    ANY_VALUE(leads.id) AS lead_id,
+    ANY_VALUE(leads.patient_id) AS patient_id,
+    ANY_VALUE(patient_schedules.id) AS patients_schedules_id,
+    ANY_VALUE(patients.enquirer_name) AS enquirer_name,
+    ANY_VALUE(patients.relationship_with_patient) AS relationship_with_patient
+  FROM   
+    leads
+    JOIN patients ON leads.patient_id = patients.id
+    LEFT JOIN master_branches ON patients.branch_id = master_branches.id
+    LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
+    LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
+    LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
+  WHERE 
+    leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE 'PRG - 401'
+  GROUP BY 
+    patients.patient_id`;
 
     console.log("Query:", query);
 
