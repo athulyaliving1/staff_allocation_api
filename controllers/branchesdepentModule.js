@@ -17,8 +17,6 @@ const getcountries = (req, res) => {
   });
 };
 
-
-
 const getstates = (req, res) => {
   const { country_id } = req.query;
 
@@ -286,75 +284,70 @@ const getBranches = (req, res) => {
   });
 };
 
-
 const Mobile = [
   {
-    "mobile_number": 1234567890,
+    mobile_number: 1234567890,
   },
   {
-    "mobile_number": 9876543210,
+    mobile_number: 9876543210,
   },
   {
-    "mobile_number": 9566420177,
+    mobile_number: 9566420177,
   },
   {
-    "mobile_number": 8667702265,
+    mobile_number: 8667702265,
   },
   {
-    "mobile_number": 8667633014,
-  },
-  {  
-    "mobile_number" : 9578127837,
+    mobile_number: 8667633014,
   },
   {
-    "mobile_number":  9840898818 ,
+    mobile_number: 9578127837,
   },
   {
-    "mobile_number":  8925496663 ,
+    mobile_number: 9840898818,
   },
   {
-    "mobile_number":  8925449222 ,
+    mobile_number: 8925496663,
   },
   {
-    "mobile_number":  7305091465 ,
+    mobile_number: 8925449222,
   },
   {
-    "mobile_number":  9176355523 ,
+    mobile_number: 7305091465,
   },
   {
-    "mobile_number":  9176137800 ,
+    mobile_number: 9176355523,
   },
   {
-    "mobile_number":  7305091461 ,
+    mobile_number: 9176137800,
   },
   {
-    "mobile_number":  6381293886 ,
+    mobile_number: 7305091461,
   },
   {
-    "mobile_number":  7305777929 ,
+    mobile_number: 6381293886,
   },
   {
-    "mobile_number":  8925496663 ,
+    mobile_number: 7305777929,
   },
   {
-    "mobile_number":  9043222484 ,
+    mobile_number: 8925496663,
   },
   {
-    "mobile_number":  9566420177 ,
+    mobile_number: 9043222484,
   },
-
-  
-
-  
+  {
+    mobile_number: 9566420177,
+  },
 ];
-
-
 
 const getRoomNumbers = (req, res) => {
   const MobileNumber = parseInt(req.query.mobile_number, 10); // Ensure it's an integer
 
   // Check if the provided mobile number exists in the Mobile array
-  const mobileExists = Mobile.some(mobile => mobile.mobile_number === MobileNumber);
+  const mobileExists = Mobile.some(
+    (mobile) => mobile.mobile_number === MobileNumber
+  );
 
   if (!mobileExists) {
     console.error("Invalid Mobile number:", MobileNumber);
@@ -376,14 +369,16 @@ const getRoomNumbers = (req, res) => {
   }
 };
 
-
 const getPatientDetails = (req, res) => {
   const room_Id = req.query.roomId;
-   
+
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
   // Check if mobileNumber is provided and valid
-  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+  if (
+    !mobileNumber ||
+    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
+  ) {
     console.error("Invalid or missing mobile number:", mobileNumber);
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
@@ -499,14 +494,14 @@ const postPatientVitals = (req, res) => {
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error inserting data into patient_activity_vitals:", err);
-      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+      res
+        .status(500)
+        .json({ error: "Error inserting data into patient_activity_vitals" });
     } else {
       res.json({ success: true, message: "Data inserted successfully" });
     }
   });
 };
-
-
 
 getPatientVitals = (req, res) => {
   console.log(typeof res); // Debug statement
@@ -524,35 +519,32 @@ getPatientVitals = (req, res) => {
   });
 };
 
-
-
 getPatientMedicines = (req, res) => {
-
   console.log(req.params);
 
   const patient_id = req.query.patient_id;
-  const timeSlots = req.query.title.split(','); // Expecting slots to be a comma-separated string like "morning,afternoon"
-  
+  const timeSlots = req.query.title.split(","); // Expecting slots to be a comma-separated string like "morning,afternoon"
+
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
   // Check if mobileNumber is provided and valid
-  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+  if (
+    !mobileNumber ||
+    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
+  ) {
     console.error("Invalid or missing mobile number:", mobileNumber);
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
 
-  if(!patient_id){
+  if (!patient_id) {
     console.error("Invalid or missing patient_id:", patient_id);
     return res.status(400).json({ error: "Invalid or missing patient_id" });
   }
-
 
   if (!timeSlots || timeSlots.length === 0) {
     console.error("Invalid or missing timeSlots:", timeSlots);
     return res.status(400).json({ error: "Invalid or missing timeSlots" });
   }
-  
- 
 
   const query = `
     SELECT DISTINCT
@@ -577,23 +569,24 @@ getPatientMedicines = (req, res) => {
       return res.status(500).send("An error occurred");
     }
     if (results.length === 0) {
-      return res.status(404).send("No medicines found for the given patient ID.");
+      return res
+        .status(404)
+        .send("No medicines found for the given patient ID.");
     }
 
-    
     const slotRanges = {
-    breakfast: { start: 5*60, end: 11*59 }, // 05:00 - 11:59
-      lunch: { start: 12*60, end: 16*59 }, // 12:00 - 16:59
-      dinner: { start: 20*60, end: 23*59 } // 20:00 - 23:59
+      breakfast: { start: 5 * 60, end: 11 * 59 }, // 05:00 - 11:59
+      lunch: { start: 12 * 60, end: 16 * 59 }, // 12:00 - 16:59
+      dinner: { start: 20 * 60, end: 23 * 59 }, // 20:00 - 23:59
     };
 
     // Filter function to check if a time is within the requested slots
     const filterByTimeSlot = (medicine) => {
-      const times = medicine.medicine_time.split(',');
-      return times.some(time => {
-        const [hours, minutes] = time.split(':').map(n => parseInt(n, 10));
+      const times = medicine.medicine_time.split(",");
+      return times.some((time) => {
+        const [hours, minutes] = time.split(":").map((n) => parseInt(n, 10));
         const timeInMinutes = hours * 60 + minutes;
-        return timeSlots.some(slot => {
+        return timeSlots.some((slot) => {
           const range = slotRanges[slot];
           // Safety check to ensure 'range' is not undefined
           if (!range) {
@@ -604,12 +597,13 @@ getPatientMedicines = (req, res) => {
         });
       });
     };
-    
 
-    const filteredResults = results.filter(filterByTimeSlot).map((item, index) => ({
-      id: index + 1, // Adding a serial number starting from 1
-      ...item
-    }));
+    const filteredResults = results
+      .filter(filterByTimeSlot)
+      .map((item, index) => ({
+        id: index + 1, // Adding a serial number starting from 1
+        ...item,
+      }));
 
     // Check if filtered results are empty and return a specific response
     if (filteredResults.length === 0) {
@@ -620,57 +614,48 @@ getPatientMedicines = (req, res) => {
   });
 };
 
-
-
-
 const getPatientMedicineSchedule = async (req, res) => {
-  const { start_date,end_date } = req.query;
+  const { start_date, end_date } = req.query;
   console.log(start_date, end_date);
-   
+
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
   // Check if mobileNumber is provided and valid
-  if (!mobileNumber || !Mobile.some(mobile => mobile.mobile_number === mobileNumber)) {
+  if (
+    !mobileNumber ||
+    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
+  ) {
     console.error("Invalid or missing mobile number:", mobileNumber);
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
 
-
   // Validate start_date and end_date parameters
   if (!start_date || !end_date) {
-    return res.status(400).json({ error: 'Missing required parameters start_date or end_date.' });
+    return res
+      .status(400)
+      .json({ error: "Missing required parameters start_date or end_date." });
   }
 
   // Use parameterized queries to prevent SQL injection
   const query = `SELECT * FROM patient_activity_medicines WHERE schedule_date BETWEEN ? AND ?;`;
 
-  db.query(query, [start_date, end_date], (err, results) => { // Note: Use 'results' here for consistency
+  db.query(query, [start_date, end_date], (err, results) => {
+    // Note: Use 'results' here for consistency
     if (err) {
       console.error("Error fetching patient activity medicines:", err);
       return res.status(500).json({ error: "An error occurred" }); // Use JSON for consistent response format
-    } else {      
+    } else {
       // res.json(results); // 'results' is the correct variable name
       const filteredResults = results.map((item, index) => ({
         id: index + 1, // Adding a serial number starting from 1
-        ...item
+        ...item,
       }));
-  
-        res.json(filteredResults);
+
+      res.json(filteredResults);
       console.log("Fetching patient activity medicines successful");
     }
   });
 };
-
-
-
-
-
-
-
-
-
-
-
 
 async function postPatientMedicines(req, res) {
   const medicineEntries = req.body; // Assuming this is your JSON array
@@ -688,8 +673,13 @@ async function postPatientMedicines(req, res) {
 
     const currentDate = new Date().toISOString().slice(0, 10); // Gets current date in YYYY-MM-DD format
     const currentTime = new Date().toTimeString().slice(0, 8); // Gets current time in HH:MM:SS format
-    
+    // Get current date and time
+    const now = new Date();
 
+    // Format date and time as YYYY-MM-DD HH:MM:SS
+    const activity_timing = now.toISOString().slice(0, 19).replace("T", " ");
+
+    console.log(activity_timing);
 
     const query = `
     INSERT INTO patient_activity_medicines(
@@ -697,16 +687,26 @@ async function postPatientMedicines(req, res) {
       dosage, unit_of_dosage, frequency, meal, sort_position, schedule_date,
       activity_timing, activity_comment, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-  `;
-  
-  for (const entry of medicineEntries) {
-    await connection.execute(query, [
-      entry.patient_id, entry.lead_id, entry.schedule_id, entry.marked_by, entry.master_medicine_inventory_id,
-      entry.dosage, entry.unit_of_dosage, entry.frequency, entry.meal, entry.sort_position, currentDate,
-      currentTime, entry.activity_comment
-    ]);
-  }
-  
+    `;
+
+    for (const entry of medicineEntries) {
+      await connection.execute(query, [
+        entry.patient_id,
+        entry.lead_id,
+        entry.schedule_id,
+        entry.marked_by,
+        entry.master_medicine_inventory_id,
+        entry.dosage,
+        entry.unit_of_dosage,
+        entry.frequency,
+        entry.meal,
+        entry.sort_position,
+        currentDate,
+        activity_timing, // Use the combined date and time
+        entry.activity_comment,
+      ]);
+    }
+
     await connection.commit();
     res.json({ success: true, message: "All data inserted successfully" });
   } catch (err) {
@@ -717,21 +717,6 @@ async function postPatientMedicines(req, res) {
     if (connection) await connection.release();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = {
   getcities,
@@ -754,5 +739,5 @@ module.exports = {
   getPatientVitals,
   getPatientMedicines,
   postPatientMedicines,
-  getPatientMedicineSchedule
+  getPatientMedicineSchedule,
 };
