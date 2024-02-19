@@ -353,7 +353,7 @@ const getRoomNumbers = (req, res) => {
     console.error("Invalid Mobile number:", MobileNumber);
     return res.status(400).json({ error: "Invalid Mobile number" });
   } else {
-    const query = `SELECT master_beds.id, master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 1;`;
+    const query = `SELECT master_beds.id, master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 4;`;
 
     console.log(query);
     // Assuming db.query is properly defined elsewhere in your code
@@ -370,8 +370,9 @@ const getRoomNumbers = (req, res) => {
 };
 
 const getPatientDetails = (req, res) => {
-  const room_Id = req.query.roomId;
-
+  var room_Id = req.query.roomId;
+  room_Id="'"+"PVM - "+room_Id+"'";
+  console.log(room_Id);
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
   // Check if mobileNumber is provided and valid
@@ -408,17 +409,20 @@ const getPatientDetails = (req, res) => {
     LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
     LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
   WHERE 
-    leads.status = 'Ongoing' AND master_branches.id = '1' AND master_rooms.room_number LIKE 'PRG - 401'
+    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number = ${room_Id}
   GROUP BY 
     patients.patient_id`;
 
-    console.log("Query:", query);
+    //console.log("Query:", query);
 
-    db.query(query, ["PRG - " + room_Id, mobileNumber], (err, result) => {
+    db.query(query, [room_Id], (err, result) => {
+      //console.log(query);
       if (err) {
+
         console.error("Error fetching patient details:", err);
         res.status(500).json({ error: "Error fetching patient details" });
       } else {
+        console.log(query);
         res.json(result);
         console.log(result);
       }
