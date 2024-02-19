@@ -432,7 +432,6 @@ const getPatientDetails = (req, res) => {
 };
 
 const postPatientVitals = (req, res) => {
-  // Corrected SQL query with `INSERT INTO` statement
   const query = `
     INSERT INTO patient_activity_vitals (
       patient_id,
@@ -467,35 +466,34 @@ const postPatientVitals = (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
   `;
 
-  // Assuming you're receiving data as JSON in the POST request body
+  // Use req.body instead of req.query for POST request data
   const values = [
-    req.query.patient_id,
-    req.query.lead_id,
-    req.query.schedule_id,
-    req.query.marked_by,
-    req.query.schedule_date,
-    req.query.activity_timing,
-    req.query.activity_bp_systole,
-    req.query.activity_bp_diastole,
-    req.query.activity_temp,
-    req.query.activity_pulse,
-    req.query.activity_resp,
-    req.query.activity_pain_score,
-    req.query.activity_pain_location_description,
-    req.query.activity_spo,
-    req.query.activity_solid_intake,
-    req.query.activity_sugar_check,
-    req.query.cbg_result,
-    req.query.cbg_sign,
-    req.query.fbs_result,
-    req.query.fbs_sign,
-    req.query.ppbs_result,
-    req.query.ppbs_sign,
-    req.query.activity_urine_output,
-    req.query.activity_motion,
-    req.query.activity_intake,
-    req.query.activity_output,
-    // created_at and updated_at will be automatically set to the current time, and deleted_at to NULL
+    req.body.patient_id,
+    req.body.lead_id,
+    req.body.schedule_id,
+    req.body.marked_by,
+    req.body.schedule_date,
+    req.body.activity_timing,
+    req.body.activity_bp_systole,
+    req.body.activity_bp_diastole,
+    req.body.activity_temp,
+    req.body.activity_pulse,
+    req.body.activity_resp,
+    req.body.activity_pain_score,
+    req.body.activity_pain_location_description,
+    req.body.activity_spo,
+    req.body.activity_solid_intake,
+    req.body.activity_sugar_check,
+    req.body.cbg_result,
+    req.body.cbg_sign,
+    req.body.fbs_result,
+    req.body.fbs_sign,
+    req.body.ppbs_result,
+    req.body.ppbs_sign,
+    req.body.activity_urine_output,
+    req.body.activity_motion,
+    req.body.activity_intake,
+    req.body.activity_output,
   ];
 
   db.query(query, values, (err, result) => {
@@ -507,6 +505,7 @@ const postPatientVitals = (req, res) => {
     }
   });
 };
+
 
 
 getPatientVitals = (req, res) => {
