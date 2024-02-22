@@ -152,6 +152,11 @@ router.post(
 
 //What Flow +
 
+router.get("/api",function(req,res){
+  res.send("AALAPI is running");
+});
+
+
 router.get("/api/getroomnumbers", branchesModule.getRoomNumbers);
 router.get("/api/getpatientdetails", branchesModule.getPatientDetails);
 router.post("/api/postpatientvitals", branchesModule.postPatientVitals);
