@@ -11,6 +11,7 @@ var config;
     database: "theatgg6_sal_subscriber102", // replace with your actual database name
     port: 25060,
     multipleStatements: true,
+    connectTimeout: 10000,
   }),
 
 
