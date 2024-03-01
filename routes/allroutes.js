@@ -170,7 +170,7 @@ router.get("/api/getpatientmedcinesschedule",branchesModule. getPatientMedicineS
 
 
 
-
+router.get("/shiftrosterupload",shiftModule.ShiftRosterUpload);
 
 
 

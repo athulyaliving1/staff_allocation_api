@@ -1,4 +1,9 @@
 var db = require("../db/connection.js").mysql_pool;
+const multer = require('multer');
+const fs = require('fs');
+const cors = require('cors');
+const csv = require('csv-parser');
+
 
 const shiftSearch = (req, res) => {
   const query = "SELECT * FROM master_shifts;";
@@ -317,6 +322,51 @@ const staffShiftRosterDelete = (req, res) => {
   });
 };
 
+
+const upload = multer({ dest: 'uploads/' });
+
+const ShiftRosterUpload = (req, res) => {
+
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const results = [];
+
+  fs.createReadStream(req.file.path)
+    .pipe(csv())
+    .on('data', (data) => results.push(data))
+    .on('end', () => {
+      fs.unlinkSync(req.file.path);
+    const query = 'INSERT INTO info (Name, City) VALUES ?';
+      const values = results.map(row => [row.Name, row.City]);
+
+      dbConnection.query(query, [values], (err, result) => {
+        if (err) {
+          console.error('Error inserting data into MySQL:', err);
+          res.status(500).send('Internal server error');
+          return;
+        }
+
+        console.log('Data inserted into MySQL successfully');
+        res.json({ message: 'Data inserted into MySQL successfully' });
+      });
+  
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
   shiftSearch,
   shiftRoster,
@@ -337,4 +387,5 @@ module.exports = {
   shiftVendorsearch,
   shiftrosterdelete,
   staffShiftRosterDelete,
+  ShiftRosterUpload
 };
