@@ -389,6 +389,7 @@ const getPatientDetails = (req, res) => {
   console.log(room_Id);
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
+  
   // Check if mobileNumber is provided and valid
   if (
     !mobileNumber ||
@@ -423,7 +424,7 @@ const getPatientDetails = (req, res) => {
     LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
     LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
   WHERE 
-    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number = ${room_Id}
+    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number = ${room_Id} AND patient_schedules.schedule_date = CURDATE()
   GROUP BY 
     patients.patient_id`;
 
@@ -443,6 +444,7 @@ const getPatientDetails = (req, res) => {
     });
   }
 };
+
 
 const postPatientVitals = (req, res) => {
   const query = `
