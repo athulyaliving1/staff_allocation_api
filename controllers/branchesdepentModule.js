@@ -385,7 +385,9 @@ const getRoomNumbers = (req, res) => {
 
 const getPatientDetails = (req, res) => {
   var room_Id = req.query.roomId;
-  room_Id="'"+"PVM - "+room_Id+"'";
+  // room_Id="'"+"PVM - "+room_Id+"'";
+
+
   console.log(room_Id);
   const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
@@ -424,7 +426,7 @@ const getPatientDetails = (req, res) => {
     LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
     LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
   WHERE 
-    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number = ${room_Id} AND patient_schedules.schedule_date = CURDATE()
+    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number LIKE '%${room_Id}%' AND patient_schedules.schedule_date = CURDATE()
   GROUP BY 
     patients.patient_id`;
 
