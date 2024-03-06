@@ -17,8 +17,6 @@ var config;
 
 
 
-
-
 // config = {
 //   mysql_pool: mysql.createPool({
 //     host: "162.241.123.158",

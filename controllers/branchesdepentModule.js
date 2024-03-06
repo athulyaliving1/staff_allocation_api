@@ -346,106 +346,162 @@ const Mobile = [
     mobile_number: 7358107615,
   },
   {
-    mobile_number : 8925496663,
+    mobile_number: 8925496663,
   },
   {
-    mobile_number:  7305777930,
-  }
-
-
+    mobile_number: 7305777930,
+  },
 ];
 
-const getRoomNumbers = (req, res) => {
-  const MobileNumber = parseInt(req.query.mobile_number, 10); // Ensure it's an integer
 
-  // Check if the provided mobile number exists in the Mobile array
-  const mobileExists = Mobile.some(
-    (mobile) => mobile.mobile_number === MobileNumber
-  );
+const getmbl = () => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT id, mb_username, mobile_number, branch_id, tower FROM flows_userdata";
 
-  if (!mobileExists) {
-    console.error("Invalid Mobile number:", MobileNumber);
-    return res.status(400).json({ error: "Invalid Mobile number" });
-  } else {
-    const query = `SELECT master_beds.id, master_beds.bed_number, master_rooms.room_number FROM master_beds JOIN master_rooms ON master_beds.room_id = master_rooms.id WHERE master_rooms.branch_id = 4;`;
-
-    console.log(query);
-    // Assuming db.query is properly defined elsewhere in your code
-    db.query(query, (err, result) => {
+    db.query(query, (err, results) => {
       if (err) {
-        console.error("Error fetching branches:", err);
-        return res.status(500).json({ error: "Error fetching branches" });
+        console.error("Error fetching user data:", err);
+        reject("An error occurred");
       } else {
-        res.json(result);
-        console.log(result);
+        resolve(results);
+        // console.log(results);
       }
     });
-  }
+  });
 };
 
-const getPatientDetails = (req, res) => {
-  var room_Id = req.query.roomId;
-  // room_Id="'"+"PVM - "+room_Id+"'";
 
 
-  console.log(room_Id);
-  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
 
-  
-  // Check if mobileNumber is provided and valid
-  if (
-    !mobileNumber ||
-    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
-  ) {
-    console.error("Invalid or missing mobile number:", mobileNumber);
+
+const getRoomNumbers = async (req, res) => {
+  const mobileNumber = parseInt(req.query.mobile_number, 10); // Ensure it's an integer once
+
+  console.log(mobileNumber);
+
+
+
+  if (isNaN(mobileNumber)) {
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
-  if (!room_Id) {
-    console.error("Invalid room ID:", room_Id);
-    return res.status(400).json({ error: "Invalid room ID" });
-  } else {
-    console.log("Valid room ID:", room_Id);
-    const query = `
-    SELECT 
-    master_branches.branch_name,
-    ANY_VALUE(master_rooms.room_number) AS room_number,
-    patients.patient_id,
-    CONCAT(ANY_VALUE(patients.first_name), ' ', COALESCE(ANY_VALUE(patients.middle_name), ''), ' ', ANY_VALUE(patients.last_name)) AS full_name,
-    ANY_VALUE(patients.mobile_number) AS mobile_number,
-    ANY_VALUE(master_beds.bed_number) AS bed_number,
-    ANY_VALUE(leads.id) AS lead_id,
-    ANY_VALUE(leads.patient_id) AS patient_id,
-    ANY_VALUE(patient_schedules.id) AS patients_schedules_id,
-    ANY_VALUE(patients.enquirer_name) AS enquirer_name,
-    ANY_VALUE(patients.relationship_with_patient) AS relationship_with_patient
-  FROM   
-    leads
-    JOIN patients ON leads.patient_id = patients.id
-    LEFT JOIN master_branches ON patients.branch_id = master_branches.id
-    LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
-    LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
-    LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
-  WHERE 
-    leads.status = 'Ongoing' AND master_branches.id = '4' AND master_rooms.room_number LIKE '%${room_Id}%' AND patient_schedules.schedule_date = CURDATE()
-  GROUP BY 
-    patients.patient_id`;
 
-    //console.log("Query:", query);
+  try {
+    const usersData = await getmbl();
+    const user = usersData.find(user => parseInt(user.mobile_number, 10) === mobileNumber);
 
-    db.query(query, [room_Id], (err, result) => {
-      //console.log(query);
+    if (!user) {
+      return res.status(400).json({ error: "Mobile number not found" });
+    }
+
+    const query = `SELECT master_beds.id, master_beds.bed_number, master_rooms.room_number
+                   FROM master_beds
+                   JOIN master_rooms ON master_beds.room_id = master_rooms.id
+                   WHERE master_rooms.branch_id = ${db.escape(user.branch_id)};`;
+
+    db.query(query, (err, result) => {
       if (err) {
-
-        console.error("Error fetching patient details:", err);
-        res.status(500).json({ error: "Error fetching patient details" });
+        console.error("Error fetching room numbers:", err);
+        return res.status(500).json({ error: "Error fetching room numbers" });
       } else {
-        console.log(query);
         res.json(result);
-        console.log(result);
       }
     });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    res.status(500).json({ error: "An error occurred while processing your request" });
   }
 };
+
+
+
+const getPatientDetails = async (req, res) => {
+  try {
+    const roomId = req.query.roomId;
+    // console.log(roomId);
+
+    // First, get mobile numbers to ensure it's available and valid
+    const usersData = await getmbl();
+    console.log("usersData:", usersData);
+    const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+    // console.log("mobileNumber:", mobileNumber);
+    // Validate mobile number
+    const user = usersData.find(user => parseInt(user.mobile_number) === mobileNumber);
+
+    const userBranchId = user ? user.branch_id : null;
+
+    console.log("userBranchId:", userBranchId);
+    
+    if (
+      !mobileNumber ||
+      !usersData.some((user) => parseInt(user.mobile_number) === mobileNumber)
+
+      
+
+    ) {
+      console.error("Invalid or missing mobile number:", mobileNumber);
+      return res
+        .status(400)
+        .json({ error: "Invalid or missing mobile number" });
+    }
+    // console.log("Valid mobile number:", mobileNumber);
+    // Validate room ID
+    if (!roomId) {
+      console.error("Invalid room ID:", roomId);
+      return res.status(400).json({ error: "Invalid room ID" });
+    } else {
+      // console.log("Valid room ID:", roomId);
+      const query = `
+      SELECT 
+  master_branches.branch_name,
+  ANY_VALUE(master_rooms.room_number) AS room_number,
+  patients.patient_id,
+  CONCAT(ANY_VALUE(patients.first_name), ' ', COALESCE(ANY_VALUE(patients.middle_name), ''), ' ', ANY_VALUE(patients.last_name)) AS full_name,
+  ANY_VALUE(patients.mobile_number) AS mobile_number,
+  ANY_VALUE(master_beds.bed_number) AS bed_number,
+  ANY_VALUE(leads.id) AS lead_id,
+  ANY_VALUE(leads.patient_id) AS patient_id,
+  ANY_VALUE(patient_schedules.id) AS patients_schedules_id,
+  ANY_VALUE(patients.enquirer_name) AS enquirer_name,
+  ANY_VALUE(patients.relationship_with_patient) AS relationship_with_patient
+FROM   
+  leads
+  JOIN patients ON leads.patient_id = patients.id
+  LEFT JOIN master_branches ON patients.branch_id = master_branches.id
+  LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
+  LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
+  LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
+WHERE 
+  leads.status = 'Ongoing' AND master_branches.id = '${userBranchId}' AND master_rooms.room_number LIKE '%${roomId}%' AND patient_schedules.schedule_date = CURDATE()
+GROUP BY 
+  patients.patient_id;
+`;
+
+      // console.log("Query:", query);
+
+      db.query(query, [roomId], (err, result) => {
+        //console.log(query);
+        if (err) {
+          console.error("Error fetching patient details:", err);
+          res.status(500).json({ error: "Error fetching patient details" });
+        } else {
+          // console.log(query);
+          res.json(result);
+          // console.log(result);
+        }
+      });
+    }
+
+    // console.log("Valid room ID:", roomId);
+
+  } catch (error) {
+    console.error("Error in getPatientDetails:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching patient details" });
+  }
+};
+
 
 
 const postPatientVitals = (req, res) => {
@@ -637,47 +693,56 @@ getPatientMedicines = (req, res) => {
 };
 
 const getPatientMedicineSchedule = async (req, res) => {
-  const { start_date, end_date } = req.query;
+  const { start_date, end_date, mobile_number } = req.query;
   console.log(start_date, end_date);
 
-  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+  const mobileNumber = parseInt(mobile_number); // Assuming mobileNumber is passed as a query parameter
 
-  // Check if mobileNumber is provided and valid
-  if (
-    !mobileNumber ||
-    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
-  ) {
+  if (!mobileNumber) {
     console.error("Invalid or missing mobile number:", mobileNumber);
     return res.status(400).json({ error: "Invalid or missing mobile number" });
   }
 
-  // Validate start_date and end_date parameters
-  if (!start_date || !end_date) {
-    return res
-      .status(400)
-      .json({ error: "Missing required parameters start_date or end_date." });
-  }
+  try {
+    const mobiles = await getmbl();
+    console.log(mobiles);
+    const mobileExists = mobiles.find(mobile =>parseInt(mobile.mobile_number)  === mobileNumber);
 
-  // Use parameterized queries to prevent SQL injection
-  const query = `SELECT * FROM patient_activity_medicines WHERE schedule_date BETWEEN ? AND ?;`;
-
-  db.query(query, [start_date, end_date], (err, results) => {
-    // Note: Use 'results' here for consistency
-    if (err) {
-      console.error("Error fetching patient activity medicines:", err);
-      return res.status(500).json({ error: "An error occurred" }); // Use JSON for consistent response format
-    } else {
-      // res.json(results); // 'results' is the correct variable name
-      const filteredResults = results.map((item, index) => ({
-        id: index + 1, // Adding a serial number starting from 1
-        ...item,
-      }));
-
-      res.json(filteredResults);
-      console.log("Fetching patient activity medicines successful");
+    if (!mobileExists) {
+      console.error("Mobile number does not exist:", mobileNumber);
+      return res.status(400).json({ error: "Mobile number does not exist" });
     }
-  });
+
+    // Validate start_date and end_date parameters
+    if (!start_date || !end_date) {
+      return res
+        .status(400)
+        .json({ error: "Missing required parameters start_date or end_date." });
+    }
+
+    // Use parameterized queries to prevent SQL injection
+    const query = `SELECT * FROM patient_activity_medicines WHERE schedule_date BETWEEN ? AND ?;`;
+
+    db.query(query, [start_date, end_date], (err, results) => {
+      if (err) {
+        console.error("Error fetching patient activity medicines:", err);
+        return res.status(500).json({ error: "An error occurred" }); // Use JSON for consistent response format
+      } else {
+        const filteredResults = results.map((item, index) => ({
+          id: index + 1, // Adding a serial number starting from 1
+          ...item,
+        }));
+
+        res.json(filteredResults);
+        console.log("Fetching patient activity medicines successful");
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching mobile numbers:", error);
+    res.status(500).json({ error: "An error occurred fetching mobile numbers" });
+  }
 };
+
 
 async function postPatientMedicines(req, res) {
   const medicineEntries = req.body; // Assuming this is your JSON array
