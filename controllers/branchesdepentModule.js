@@ -435,10 +435,7 @@ const getPatientDetails = async (req, res) => {
 
     const userBranchId = user ? user.branch_id : null;
 
-    const userTowerId = user ? user.tower : null;
-
     console.log("userBranchId:", userBranchId);
-    console.log("userTowerId:", userTowerId);
     
     if (
       !mobileNumber ||
@@ -461,42 +458,28 @@ const getPatientDetails = async (req, res) => {
       // console.log("Valid room ID:", roomId);
       const query = `
       SELECT 
-    master_branches.branch_name,
-    ANY_VALUE(master_rooms.room_number) AS room_number,
-    patients.patient_id,
-    CONCAT(ANY_VALUE(patients.first_name), ' ', COALESCE(ANY_VALUE(patients.middle_name), ''), ' ', ANY_VALUE(patients.last_name)) AS full_name,
-    ANY_VALUE(patients.mobile_number) AS mobile_number,
-    ANY_VALUE(master_beds.bed_number) AS bed_number,
-    ANY_VALUE(leads.id) AS lead_id,
-    ANY_VALUE(leads.patient_id) AS patient_id,
-    ANY_VALUE(patient_schedules.id) AS patients_schedules_id,
-    ANY_VALUE(patients.enquirer_name) AS enquirer_name,
-    ANY_VALUE(patients.relationship_with_patient) AS relationship_with_patient
+  master_branches.branch_name,
+  ANY_VALUE(master_rooms.room_number) AS room_number,
+  patients.patient_id,
+  CONCAT(ANY_VALUE(patients.first_name), ' ', COALESCE(ANY_VALUE(patients.middle_name), ''), ' ', ANY_VALUE(patients.last_name)) AS full_name,
+  ANY_VALUE(patients.mobile_number) AS mobile_number,
+  ANY_VALUE(master_beds.bed_number) AS bed_number,
+  ANY_VALUE(leads.id) AS lead_id,
+  ANY_VALUE(leads.patient_id) AS patient_id,
+  ANY_VALUE(patient_schedules.id) AS patients_schedules_id,
+  ANY_VALUE(patients.enquirer_name) AS enquirer_name,
+  ANY_VALUE(patients.relationship_with_patient) AS relationship_with_patient
 FROM   
-    leads
-JOIN 
-    patients ON leads.patient_id = patients.id
-LEFT JOIN 
-    master_branches ON patients.branch_id = master_branches.id
-LEFT JOIN 
-    patient_schedules ON patients.id = patient_schedules.patient_id
-LEFT JOIN 
-    master_beds ON patient_schedules.bed_id = master_beds.id
-LEFT JOIN 
-    master_rooms ON master_beds.room_id = master_rooms.id
-LEFT JOIN 
-    master_floor_section ON master_rooms.floor = master_floor_section.id
-LEFT JOIN 
-    master_sections ON master_floor_section.section = master_sections.abbr 
+  leads
+  JOIN patients ON leads.patient_id = patients.id
+  LEFT JOIN master_branches ON patients.branch_id = master_branches.id
+  LEFT JOIN patient_schedules ON patients.id = patient_schedules.patient_id
+  LEFT JOIN master_beds ON patient_schedules.bed_id = master_beds.id
+  LEFT JOIN master_rooms ON master_beds.room_id = master_rooms.id
 WHERE 
-    leads.status = 'Ongoing' 
-    AND master_branches.id = '${userBranchId}'
-    AND master_rooms.room_number LIKE '%${roomId}%'
-    AND master_floor_section.tower = '${userTowerId}'
-    AND patient_schedules.schedule_date = CURDATE()
+  leads.status = 'Ongoing' AND master_branches.id = '${userBranchId}' AND master_rooms.room_number LIKE '%${roomId}%' AND patient_schedules.schedule_date = CURDATE()
 GROUP BY 
-    patients.patient_id;
-
+  patients.patient_id;
 `;
 
       // console.log("Query:", query);
