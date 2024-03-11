@@ -1,6 +1,7 @@
 var db = require("../db/connection.js").mysql_pool;
 var dbconnection = require("../db/dbconnection.js").mysql_pool;
-
+const axios = require('axios');
+const cron = require('node-cron');
 // API endpoint to fetch countries
 
 const getcountries = (req, res) => {
@@ -137,6 +138,10 @@ const getFloor = (req, res) => {
     }
   });
 };
+
+
+
+
 
 const getSection = (req, res) => {
   const { branch_id, floor } = req.params;
@@ -387,7 +392,7 @@ const getRoomNumbers = async (req, res) => {
   }
 
   try {
-    const usersData = await getmbl();
+    const usersData =   getmbl();
     const user = usersData.find(user => parseInt(user.mobile_number, 10) === mobileNumber);
 
     if (!user) {
@@ -581,21 +586,21 @@ const postPatientVitals = (req, res) => {
   });
 };
 
-getPatientVitals = (req, res) => {
-  console.log(typeof res); // Debug statement
-  const query =
-    "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
+// getPatientVitals = (req, res) => {
+//   console.log(typeof res); // Debug statement
+//   const query =
+//     "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("Error fetching patient vitals:", err);
-      res.status(500).send("An error occurred");
-    } else {
-      res.json(results);
-      console.table(results);
-    }
-  });
-};
+//   db.query(query, (err, results) => {
+//     if (err) {
+//       console.error("Error fetching patient vitals:", err);
+//       res.status(500).send("An error occurred");
+//     } else {
+//       res.json(results);
+//       console.table(results);
+//     }
+//   });
+// };
 
 getPatientMedicines = (req, res) => {
   console.log(req.params);
@@ -805,6 +810,178 @@ async function postPatientMedicines(req, res) {
   }
 }
 
+
+
+
+
+
+const getPatientId = () =>  {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * 
+    FROM patient_activity_vitals 
+    JOIN patients ON patient_activity_vitals.patient_id = patients.id
+    JOIN master_branches ON patients.branch_id = master_branches.id
+    WHERE patient_activity_vitals.schedule_date = CURRENT_DATE 
+    AND master_branches.id = '4'`;
+
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        reject("An error occurred");      
+      } else {
+        resolve(results);
+        console.table(results);
+      }
+    });
+  });
+};
+
+const getPatientVitals = () => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT * FROM patient_activity_vitals JOIN patients ON patient_activity_vitals.patient_id = patients.id JOIN master_branches ON patients.branch_id = master_branches.id WHERE patient_activity_vitals.schedule_date = CURRENT_DATE AND master_branches.id = '4'";
+
+      db.query(query, (err, results) => {
+      if (err) {
+        console.error("Error fetching patient vitals:", err);
+        reject(err);
+      } else {
+        resolve(results);
+        console.table(results);
+      }
+    });
+  });
+};
+
+
+
+
+// const patients = async () => {
+//   console.log('Running a task every 2 minutes');
+
+//     // Acquire a connection from the pool
+//     db.query(`SELECT 
+//     patients.patient_id,
+//     patients.first_name,
+//     patient_activity_vitals.created_at,
+//     patient_activity_vitals.activity_bp_systole,
+//     patient_activity_vitals.activity_bp_diastole,
+//     patient_activity_vitals.activity_pulse,
+//     patient_activity_vitals.activity_resp,
+//     patient_activity_vitals.activity_temp,
+//     patient_activity_vitals.activity_spo,
+//     patient_activity_vitals.activity_pain_score,
+//     patient_activity_vitals.activity_pain_location_description,
+//     patient_activity_vitals.activity_solid_intake,
+//     patient_activity_vitals.activity_sugar_check,
+//     patient_activity_vitals.activity_output,
+//     patient_activity_vitals.activity_urine_output
+// FROM 
+//     patient_activity_vitals
+// JOIN 
+//     patients ON patient_activity_vitals.patient_id = patients.id
+// JOIN 
+//     master_branches ON patients.branch_id = master_branches.id
+// WHERE 
+//     patient_activity_vitals.schedule_date = CURRENT_DATE
+// AND 
+//     master_branches.id = '4'
+// LIMIT 
+//     20
+// `, (error, results, fields) => {
+        
+//         console.log('Fetched ' + results.length + ' rows');
+//           console.table(results);
+//         results.forEach(function(obj) {
+//              console.log(obj.patient_id); 
+//              sendMessage (obj, "919566420177") 
+//         });
+//         console.log('Done!');
+//         // return res.status(200).json({data:results});
+//       });
+// };
+
+
+// const phoneNumbers = ["919566420177","919578127837","7667338723" ];
+
+
+// async function sendMessage (patientData, phoneNumber) {
+//   const apiUrl = 'https://api.bizmagnets.ai/dev/message/mCbGWzCH/sendMessage';
+//   const apiKey = 'c92ab7885f2f31bda9621436d28dc74e'; // Consider moving sensitive data like API keys to environment variables
+
+//   const textOrNA = (text) => text ? text.toString() : "N/A"; 
+
+//   // Prepare your message data here based on `patientData`
+//   const messageData = {
+//     // to: phoneNumbers, // This should be dynamic based on `patientData`
+//     type: "template",
+//     messaging_product: "whatsapp",
+//     template: {
+//       name: "vitals_response",
+//       language: {
+//         policy: "deterministic",
+//         code: "en"
+//       },
+//       components: [
+//         {
+//           type: "body",
+//           parameters: [
+//             // Fill in the parameters based on `patientData`
+//             { type: "text", text: textOrNA(patientData.patient_id) },
+//             { type: "text", text: textOrNA(patientData.first_name) },
+//             { type: "text", text: textOrNA(patientData.created_at) },
+//             { type: "text", text: textOrNA(patientData.activity_bp_systole) },
+//             { type: "text", text: textOrNA(patientData.activity_bp_diastole) },
+//             { type: "text", text: textOrNA(patientData.activity_pulse) },
+//             { type: "text", text: textOrNA(patientData.activity_resp) },
+//             { type: "text", text: textOrNA(patientData.activity_temp) },
+//             { type: "text", text: textOrNA(patientData.activity_spo) },
+//             { type: "text", text: textOrNA(patientData.activity_pain_score) },
+//             { type: "text", text: textOrNA(patientData.activity_pain_location_description) },
+//             { type: "text", text: textOrNA(patientData.activity_solid_intake) },
+//             { type: "text", text: textOrNA(patientData.activity_sugar_check) },
+//             { type: "text", text: textOrNA(patientData.activity_motion) },
+//             { type: "text", text: textOrNA(patientData.activity_output) },
+//             { type: "text", text: textOrNA(patientData.activity_urine_output) },
+           
+           
+//           ]
+//         }
+//       ]
+//     }
+//   };
+
+//   try {
+//     // Iterate over the phone numbers and send the message to each one
+//     for (const phoneNumber of phoneNumbers) {
+//       messageData.to = phoneNumber; // Set the phone number
+//       const response = await axios.post(apiUrl, messageData, {
+//         headers: {
+//           'X-API-KEY': apiKey,
+//           'Content-Type': 'application/json'
+//         }
+//       });
+//       console.log(`Message sent to ${phoneNumber}:`, response.data);
+//     }
+//   } catch (error) {
+//     console.error('Error sending message:', error);
+//   }
+// }
+
+
+
+
+
+
+
+// cron.schedule('12 13 * * *', patients);
+
+
+
+
+
+
+
 module.exports = {
   getcities,
   getstates,
@@ -827,4 +1004,7 @@ module.exports = {
   getPatientMedicines,
   postPatientMedicines,
   getPatientMedicineSchedule,
+  // patients,
+ 
+  
 };
