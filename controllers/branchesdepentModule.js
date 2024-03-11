@@ -509,6 +509,43 @@ GROUP BY
 
 
 
+
+function formatActivityTemp(temp) {
+  console.log("Formatted Temperature:", temp);
+  if (typeof temp === 'number' && !isNaN(temp)) {
+    if (temp >= 10 && temp < 100) { // Check if temp has two digits before decimal
+      const result = temp.toFixed(1); // Add one decimal place
+      console.log("Result (two digits):", result);
+      return result;
+    } else if (temp >= 100 && temp < 1000) { // Check if temp has three digits before decimal
+      const result = (temp / 10).toFixed(1); // Convert to last one point decimal
+      console.log("Result (three digits):", result);
+      return result;
+    } else if (temp >= 1000 && temp <= 9999) { // Check if temp has four digits before decimal
+      // Separate the first two digits and two decimals from the integer
+      const integerPart = Math.floor(temp / 10);
+      const decimalPart = temp % 100;
+      const result = `${integerPart}.${decimalPart}`;
+      console.log("Result (four digits):", result);
+      return result;
+    }
+  }
+  const result = "N/A";
+  console.log("Result (N/A):", result);
+  return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 const postPatientVitals = (req, res) => {
   const query = `
     INSERT INTO patient_activity_vitals (
@@ -554,7 +591,7 @@ const postPatientVitals = (req, res) => {
     req.query.activity_timing,
     req.query.activity_bp_systole,
     req.query.activity_bp_diastole,
-    req.query.activity_temp,
+    formatActivityTemp(parseFloat(req.query.activity_temp)),
     req.query.activity_pulse,
     req.query.activity_resp,
     req.query.activity_pain_score,
