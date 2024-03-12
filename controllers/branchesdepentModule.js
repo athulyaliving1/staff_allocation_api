@@ -723,7 +723,7 @@ getPatientMedicines = async (req, res) => {
  const usersData = await getmbl();
  console.log("usersData:", usersData);
  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
- // console.log("mobileNumber:", mobileNumber);
+ console.log("mobileNumber:", mobileNumber);
  // Validate mobile number
  const user = usersData.find(
    (user) => parseInt(user.mobile_number) === mobileNumber
@@ -816,7 +816,7 @@ getPatientMedicines = async (req, res) => {
     if (filteredResults.length === 0) {
       return res.status(404).send("No data found in the requested time slots.");
     }
-
+    console.log(filteredResults);
     res.json(filteredResults);
   });
 };
