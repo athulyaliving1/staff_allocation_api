@@ -439,8 +439,6 @@ GROUP BY
 };
 
 
-
-
 function formatActivityTemp(temp) {
   console.log("Formatted Temperature:", temp);
   if (typeof temp === 'number' && !isNaN(temp)) {
@@ -452,14 +450,12 @@ function formatActivityTemp(temp) {
       const result = (temp / 10).toFixed(1); // Convert to last one point decimal
       console.log("Result (three digits):", result);
       return result;
-    } else if (temp >= 1001 && temp <= 9999) { // Check if temp has four digits before decimal
+    } else if (temp >= 1000 && temp <= 9999) { // Check if temp has four digits before decimal
       // Separate the first two digits and two decimals from the integer
-      // const integerPart = Math.floor(temp / 10)
-      // const decimalPart = temp % 100;
-      // const result = `${decimalPart}`;
-      // console.log("Result (four digits):", result);
-      const result = (temp / 10).toFixed(1);
-    console.log("Result (four digits):", result);
+      const integerPart = Math.floor(temp / 10);
+      const decimalPart = temp % 100;
+      const result = `${integerPart}.${decimalPart}`;
+      console.log("Result (four digits):", result);
       return result;
     }
   }
@@ -470,43 +466,16 @@ function formatActivityTemp(temp) {
 
 
 
+
+
+
+
+
+
+
+
+
 const postPatientVitals = (req, res) => {
-  // Validation
-  const activityBpSystole = parseInt(req.query.activity_bp_systole);
-  const activityBpDiastole = parseInt(req.query.activity_bp_diastole);
-  const activityTemp = parseFloat(req.query.activity_temp);
-  const activityPulse = parseInt(req.query.activity_pulse);
-  const activityResp = parseInt(req.query.activity_resp);
-  const activitySpo = parseInt(req.query.activity_spo);
-
-  // Blood Pressure Validation
-  if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
-    return res.status(400).json({ error: "Invalid blood pressure values" });
-  }
-
-  // Temperature Validation
-  if (activityTemp < 90.5 || activityTemp > 119.5) {
-    return res.status(400).json({ error: "Invalid temperature value" });
-  }
-
-  // Pulse Validation
-  if (activityPulse < 30 || activityPulse > 190) {
-    return res.status(400).json({ error: "Invalid pulse value" });
-  }
-
-  // Respiratory Rate Validation
-  if (activityResp < 10 || activityResp > 140) {
-    return res.status(400).json({ error: "Invalid respiratory rate value" });
-  }
-
-  // Spo2 Validation
-  if (activitySpo < 84 || activitySpo > 115) {
-    return res.status(400).json({ error: "Invalid Spo2 value" });
-  }
-
-  // Format temperature using the previously defined function
-  const formattedTemp = formatActivityTemp(activityTemp);
-
   const query = `
     INSERT INTO patient_activity_vitals (
       patient_id,
@@ -541,7 +510,7 @@ const postPatientVitals = (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
   `;
 
-  // Assume db is your database connection object and it's set up correctly
+  // Use req.body instead of req.query for POST request data
   const values = [
     req.query.patient_id,
     req.query.lead_id,
@@ -549,14 +518,14 @@ const postPatientVitals = (req, res) => {
     req.query.marked_by,
     req.query.schedule_date,
     req.query.activity_timing,
-    activityBpSystole,
-    activityBpDiastole,
-    formattedTemp,
-    activityPulse,
-    activityResp,
+    req.query.activity_bp_systole,
+    req.query.activity_bp_diastole,
+    formatActivityTemp(parseFloat(req.query.activity_temp)),
+    req.query.activity_pulse,
+    req.query.activity_resp,
     req.query.activity_pain_score,
     req.query.activity_pain_location_description,
-    activitySpo,
+    req.query.activity_spo,
     req.query.activity_solid_intake,
     req.query.activity_sugar_check,
     req.query.cbg_result,
@@ -574,12 +543,159 @@ const postPatientVitals = (req, res) => {
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error inserting data into patient_activity_vitals:", err);
-      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+      res
+        .status(500)
+        .json({ error: "Error inserting data into patient_activity_vitals" });
     } else {
       res.json({ success: true, message: "Data inserted successfully" });
     }
   });
 };
+
+
+
+
+
+
+// function formatActivityTemp(temp) {
+//   console.log("Formatted Temperature:", temp);
+//   if (typeof temp === 'number' && !isNaN(temp)) {
+//     if (temp >= 10 && temp < 100) { // Check if temp has two digits before decimal
+//       const result = temp.toFixed(1); // Add one decimal place
+//       console.log("Result (two digits):", result);
+//       return result;
+//     } else if (temp >= 100 && temp < 1000) { // Check if temp has three digits before decimal
+//       const result = (temp / 10).toFixed(1); // Convert to last one point decimal
+//       console.log("Result (three digits):", result);
+//       return result;
+//     } else if (temp >= 1001 && temp <= 9999) { // Check if temp has four digits before decimal
+//       // Separate the first two digits and two decimals from the integer
+//       // const integerPart = Math.floor(temp / 10)
+//       // const decimalPart = temp % 100;
+//       // const result = `${decimalPart}`;
+//       // console.log("Result (four digits):", result);
+//       const result = (temp / 10).toFixed(1);
+//     console.log("Result (four digits):", result);
+//       return result;
+//     }
+//   }
+//   const result = "N/A";
+//   console.log("Result (N/A):", result);
+//   return result;
+// }
+
+
+
+// const postPatientVitals = (req, res) => {
+//   // Validation
+//   const activityBpSystole = parseInt(req.query.activity_bp_systole);
+//   const activityBpDiastole = parseInt(req.query.activity_bp_diastole);
+//   const activityTemp = parseFloat(req.query.activity_temp);
+//   const activityPulse = parseInt(req.query.activity_pulse);
+//   const activityResp = parseInt(req.query.activity_resp);
+//   const activitySpo = parseInt(req.query.activity_spo);
+
+//   // Blood Pressure Validation
+//   if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
+//     return res.status(400).json({ error: "Invalid blood pressure values" });
+//   }
+
+//   // Temperature Validation
+//   if (activityTemp < 90.5 || activityTemp > 119.5) {
+//     return res.status(400).json({ error: "Invalid temperature value" });
+//   }
+
+//   // Pulse Validation
+//   if (activityPulse < 30 || activityPulse > 190) {
+//     return res.status(400).json({ error: "Invalid pulse value" });
+//   }
+
+//   // Respiratory Rate Validation
+//   if (activityResp < 10 || activityResp > 140) {
+//     return res.status(400).json({ error: "Invalid respiratory rate value" });
+//   }
+
+//   // Spo2 Validation
+//   if (activitySpo < 84 || activitySpo > 115) {
+//     return res.status(400).json({ error: "Invalid Spo2 value" });
+//   }
+
+//   // Format temperature using the previously defined function
+//   const formattedTemp = formatActivityTemp(activityTemp);
+
+//   const query = `
+//     INSERT INTO patient_activity_vitals (
+//       patient_id,
+//       lead_id,
+//       schedule_id,
+//       marked_by,
+//       schedule_date,
+//       activity_timing,
+//       activity_bp_systole,
+//       activity_bp_diastole,
+//       activity_temp,
+//       activity_pulse,
+//       activity_resp,
+//       activity_pain_score,
+//       activity_pain_location_description,
+//       activity_spo,
+//       activity_solid_intake,
+//       activity_sugar_check,
+//       cbg_result,
+//       cbg_sign,
+//       fbs_result,
+//       fbs_sign,
+//       ppbs_result,
+//       ppbs_sign,
+//       activity_urine_output,
+//       activity_motion,
+//       activity_intake,
+//       activity_output,
+//       created_at,
+//       updated_at,
+//       deleted_at
+//     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
+//   `;
+
+//   // Assume db is your database connection object and it's set up correctly
+//   const values = [
+//     req.query.patient_id,
+//     req.query.lead_id,
+//     req.query.schedule_id,
+//     req.query.marked_by,
+//     req.query.schedule_date,
+//     req.query.activity_timing,
+//     activityBpSystole,
+//     activityBpDiastole,
+//     formattedTemp,
+//     activityPulse,
+//     activityResp,
+//     req.query.activity_pain_score,
+//     req.query.activity_pain_location_description,
+//     activitySpo,
+//     req.query.activity_solid_intake,
+//     req.query.activity_sugar_check,
+//     req.query.cbg_result,
+//     req.query.cbg_sign,
+//     req.query.fbs_result,
+//     req.query.fbs_sign,
+//     req.query.ppbs_result,
+//     req.query.ppbs_sign,
+//     req.query.activity_urine_output,
+//     req.query.activity_motion,
+//     req.query.activity_intake,
+//     req.query.activity_output,
+//   ];
+
+//   db.query(query, values, (err, result) => {
+//     if (err) {
+//       console.error("Error inserting data into patient_activity_vitals:", err);
+//       res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+//     } else {
+//       res.json({ success: true, message: "Data inserted successfully" });
+//     }
+//   });
+// };
 
 // getPatientVitals = (req, res) => {
 //   console.log(typeof res); // Debug statement
