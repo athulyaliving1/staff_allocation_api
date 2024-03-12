@@ -289,74 +289,7 @@ const getBranches = (req, res) => {
   });
 };
 
-const Mobile = [
-  {
-    mobile_number: 1234567890,
-  },
-  {
-    mobile_number: 9876543210,
-  },
-  {
-    mobile_number: 9566420177,
-  },
-  {
-    mobile_number: 8667702265,
-  },
-  {
-    mobile_number: 8667633014,
-  },
-  {
-    mobile_number: 9578127837,
-  },
-  {
-    mobile_number: 9840898818,
-  },
-  {
-    mobile_number: 8925496663,
-  },
-  {
-    mobile_number: 8925449222,
-  },
-  {
-    mobile_number: 7305091465,
-  },
-  {
-    mobile_number: 9176355523,
-  },
-  {
-    mobile_number: 9176137800,
-  },
-  {
-    mobile_number: 7305091461,
-  },
-  {
-    mobile_number: 6381293886,
-  },
-  {
-    mobile_number: 7305777929,
-  },
-  {
-    mobile_number: 8925496663,
-  },
-  {
-    mobile_number: 9043222484,
-  },
-  {
-    mobile_number: 9566420177,
-  },
-  {
-    mobile_number: 6385450731,
-  },
-  {
-    mobile_number: 7358107615,
-  },
-  {
-    mobile_number: 8925496663,
-  },
-  {
-    mobile_number: 7305777930,
-  },
-];
+
 
 
 const getmbl = () => {
@@ -441,8 +374,6 @@ const getPatientDetails = async (req, res) => {
       !mobileNumber ||
       !usersData.some((user) => parseInt(user.mobile_number) === mobileNumber)
 
-      
-
     ) {
       console.error("Invalid or missing mobile number:", mobileNumber);
       return res
@@ -521,12 +452,14 @@ function formatActivityTemp(temp) {
       const result = (temp / 10).toFixed(1); // Convert to last one point decimal
       console.log("Result (three digits):", result);
       return result;
-    } else if (temp >= 1000 && temp <= 9999) { // Check if temp has four digits before decimal
+    } else if (temp >= 1001 && temp <= 9999) { // Check if temp has four digits before decimal
       // Separate the first two digits and two decimals from the integer
-      const integerPart = Math.floor(temp / 10);
-      const decimalPart = temp % 100;
-      const result = `${integerPart}.${decimalPart}`;
-      console.log("Result (four digits):", result);
+      // const integerPart = Math.floor(temp / 10)
+      // const decimalPart = temp % 100;
+      // const result = `${decimalPart}`;
+      // console.log("Result (four digits):", result);
+      const result = (temp / 10).toFixed(1);
+    console.log("Result (four digits):", result);
       return result;
     }
   }
@@ -537,16 +470,43 @@ function formatActivityTemp(temp) {
 
 
 
-
-
-
-
-
-
-
-
-
 const postPatientVitals = (req, res) => {
+  // Validation
+  const activityBpSystole = parseInt(req.query.activity_bp_systole);
+  const activityBpDiastole = parseInt(req.query.activity_bp_diastole);
+  const activityTemp = parseFloat(req.query.activity_temp);
+  const activityPulse = parseInt(req.query.activity_pulse);
+  const activityResp = parseInt(req.query.activity_resp);
+  const activitySpo = parseInt(req.query.activity_spo);
+
+  // Blood Pressure Validation
+  if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
+    return res.status(400).json({ error: "Invalid blood pressure values" });
+  }
+
+  // Temperature Validation
+  if (activityTemp < 90.5 || activityTemp > 119.5) {
+    return res.status(400).json({ error: "Invalid temperature value" });
+  }
+
+  // Pulse Validation
+  if (activityPulse < 30 || activityPulse > 190) {
+    return res.status(400).json({ error: "Invalid pulse value" });
+  }
+
+  // Respiratory Rate Validation
+  if (activityResp < 10 || activityResp > 140) {
+    return res.status(400).json({ error: "Invalid respiratory rate value" });
+  }
+
+  // Spo2 Validation
+  if (activitySpo < 84 || activitySpo > 115) {
+    return res.status(400).json({ error: "Invalid Spo2 value" });
+  }
+
+  // Format temperature using the previously defined function
+  const formattedTemp = formatActivityTemp(activityTemp);
+
   const query = `
     INSERT INTO patient_activity_vitals (
       patient_id,
@@ -581,7 +541,7 @@ const postPatientVitals = (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
   `;
 
-  // Use req.body instead of req.query for POST request data
+  // Assume db is your database connection object and it's set up correctly
   const values = [
     req.query.patient_id,
     req.query.lead_id,
@@ -589,14 +549,14 @@ const postPatientVitals = (req, res) => {
     req.query.marked_by,
     req.query.schedule_date,
     req.query.activity_timing,
-    req.query.activity_bp_systole,
-    req.query.activity_bp_diastole,
-    formatActivityTemp(parseFloat(req.query.activity_temp)),
-    req.query.activity_pulse,
-    req.query.activity_resp,
+    activityBpSystole,
+    activityBpDiastole,
+    formattedTemp,
+    activityPulse,
+    activityResp,
     req.query.activity_pain_score,
     req.query.activity_pain_location_description,
-    req.query.activity_spo,
+    activitySpo,
     req.query.activity_solid_intake,
     req.query.activity_sugar_check,
     req.query.cbg_result,
@@ -614,9 +574,7 @@ const postPatientVitals = (req, res) => {
   db.query(query, values, (err, result) => {
     if (err) {
       console.error("Error inserting data into patient_activity_vitals:", err);
-      res
-        .status(500)
-        .json({ error: "Error inserting data into patient_activity_vitals" });
+      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
     } else {
       res.json({ success: true, message: "Data inserted successfully" });
     }
@@ -639,22 +597,35 @@ const postPatientVitals = (req, res) => {
 //   });
 // };
 
-getPatientMedicines = (req, res) => {
+getPatientMedicines = async (req, res) => {
   console.log(req.params);
 
   const patient_id = req.query.patient_id;
   const timeSlots = req.query.title.split(","); // Expecting slots to be a comma-separated string like "morning,afternoon"
 
-  const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+ // First, get mobile numbers to ensure it's available and valid
+ const usersData = await getmbl();
+ console.log("usersData:", usersData);
+ const mobileNumber = parseInt(req.query.mobile_number); // Assuming mobileNumber is passed as a query parameter
+ // console.log("mobileNumber:", mobileNumber);
+ // Validate mobile number
+ const user = usersData.find(
+   (user) => parseInt(user.mobile_number) === mobileNumber
+ );
 
-  // Check if mobileNumber is provided and valid
-  if (
-    !mobileNumber ||
-    !Mobile.some((mobile) => mobile.mobile_number === mobileNumber)
-  ) {
-    console.error("Invalid or missing mobile number:", mobileNumber);
-    return res.status(400).json({ error: "Invalid or missing mobile number" });
-  }
+ const userBranchId = user ? user.branch_id : null;
+
+ console.log("userBranchId:", userBranchId);
+
+ if (
+   !mobileNumber ||
+   !usersData.some((user) => parseInt(user.mobile_number) === mobileNumber)
+ ) {
+   console.error("Invalid or missing mobile number:", mobileNumber);
+   return res
+     .status(400)
+     .json({ error: "Invalid or missing mobile number" });
+ }
 
   if (!patient_id) {
     console.error("Invalid or missing patient_id:", patient_id);
@@ -873,20 +844,19 @@ const getPatientId = () =>  {
   });
 };
 
-const getPatientVitals = () => {
-  return new Promise((resolve, reject) => {
-    const query =
-      "SELECT * FROM patient_activity_vitals JOIN patients ON patient_activity_vitals.patient_id = patients.id JOIN master_branches ON patients.branch_id = master_branches.id WHERE patient_activity_vitals.schedule_date = CURRENT_DATE AND master_branches.id = '4'";
+getPatientVitals = (req, res) => {
+  console.log(typeof res); // Debug statement
+  const query =
+    "SELECT * FROM patient_activity_vitals where patient_activity_vitals.schedule_date =CURRENT_DATE";
 
-      db.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching patient vitals:", err);
-        reject(err);
-      } else {
-        resolve(results);
-        console.table(results);
-      }
-    });
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching patient vitals:", err);
+      res.status(500).send("An error occurred");
+    } else {
+      res.json(results);
+      console.table(results);
+    }
   });
 };
 
