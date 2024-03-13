@@ -467,14 +467,6 @@ function formatActivityTemp(temp) {
 
 
 
-
-
-
-
-
-
-
-
 const postPatientVitals = (req, res) => {
   const query = `
     INSERT INTO patient_activity_vitals (
@@ -586,116 +578,144 @@ const postPatientVitals = (req, res) => {
 
 
 
-// const postPatientVitals = (req, res) => {
-//   // Validation
-//   const activityBpSystole = parseInt(req.query.activity_bp_systole);
-//   const activityBpDiastole = parseInt(req.query.activity_bp_diastole);
-//   const activityTemp = parseFloat(req.query.activity_temp);
-//   const activityPulse = parseInt(req.query.activity_pulse);
-//   const activityResp = parseInt(req.query.activity_resp);
-//   const activitySpo = parseInt(req.query.activity_spo);
+const postPatientVitalsWithValidation = (req, res) => {
+  // Validation
+  const activityBpSystole = parseInt(req.query.activity_bp_systole);
+  const activityBpDiastole = parseInt(req.query.activity_bp_diastole);
+  // const activityTemp = formatActivityTemp(parseFloat(req.query.activity_temp));
+  const activityPulse = parseInt(req.query.activity_pulse);
+  const activityResp = parseInt(req.query.activity_resp);
+  const activitySpo = parseInt(req.query.activity_spo);
 
-//   // Blood Pressure Validation
-//   if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
-//     return res.status(400).json({ error: "Invalid blood pressure values" });
-//   }
+ 
+  // console.log( "activityTemp ",activityTemp);
 
-//   // Temperature Validation
-//   if (activityTemp < 90.5 || activityTemp > 119.5) {
-//     return res.status(400).json({ error: "Invalid temperature value" });
-//   }
+// Initialize an array to hold validation error messages
+let errors = [];
 
-//   // Pulse Validation
-//   if (activityPulse < 30 || activityPulse > 190) {
-//     return res.status(400).json({ error: "Invalid pulse value" });
-//   }
+// Blood Pressure Validation
+if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
+  errors.push(`Invalid blood pressure values: Systole 65-180 (given: ${activityBpSystole}), Diastole 50-190 (given: ${activityBpDiastole})`);
+}
 
-//   // Respiratory Rate Validation
-//   if (activityResp < 10 || activityResp > 140) {
-//     return res.status(400).json({ error: "Invalid respiratory rate value" });
-//   }
+// Temperature Validation
+// if (activityTemp < 90.5 || activityTemp > 119.5) {
+//   errors.push("Invalid temperature value: Expected range 90.5-119.5  (given: " + activityTemp + ")   ");
+// }
 
-//   // Spo2 Validation
-//   if (activitySpo < 84 || activitySpo > 115) {
-//     return res.status(400).json({ error: "Invalid Spo2 value" });
-//   }
+// Pulse Validation
+if (activityPulse < 30 || activityPulse > 190) {
+  errors.push("Invalid pulse value: Expected range 30-190 (given: " + activityPulse + ")");
+}
 
-//   // Format temperature using the previously defined function
-//   const formattedTemp = formatActivityTemp(activityTemp);
+// Respiratory Rate Validation
+if (activityResp < 10 || activityResp > 140) {
+  errors.push("Invalid respiratory rate value: Expected range 10-140   (given: " + activityResp + ")  ");
+}
 
-//   const query = `
-//     INSERT INTO patient_activity_vitals (
-//       patient_id,
-//       lead_id,
-//       schedule_id,
-//       marked_by,
-//       schedule_date,
-//       activity_timing,
-//       activity_bp_systole,
-//       activity_bp_diastole,
-//       activity_temp,
-//       activity_pulse,
-//       activity_resp,
-//       activity_pain_score,
-//       activity_pain_location_description,
-//       activity_spo,
-//       activity_solid_intake,
-//       activity_sugar_check,
-//       cbg_result,
-//       cbg_sign,
-//       fbs_result,
-//       fbs_sign,
-//       ppbs_result,
-//       ppbs_sign,
-//       activity_urine_output,
-//       activity_motion,
-//       activity_intake,
-//       activity_output,
-//       created_at,
-//       updated_at,
-//       deleted_at
-//     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
-//   `;
+// Spo2 Validation
+if (activitySpo < 84 || activitySpo > 115) {
+  errors.push("Invalid Spo2 value: Expected range 84-115 (given: " + activitySpo + ")" );
+}
 
-//   // Assume db is your database connection object and it's set up correctly
-//   const values = [
-//     req.query.patient_id,
-//     req.query.lead_id,
-//     req.query.schedule_id,
-//     req.query.marked_by,
-//     req.query.schedule_date,
-//     req.query.activity_timing,
-//     activityBpSystole,
-//     activityBpDiastole,
-//     formattedTemp,
-//     activityPulse,
-//     activityResp,
-//     req.query.activity_pain_score,
-//     req.query.activity_pain_location_description,
-//     activitySpo,
-//     req.query.activity_solid_intake,
-//     req.query.activity_sugar_check,
-//     req.query.cbg_result,
-//     req.query.cbg_sign,
-//     req.query.fbs_result,
-//     req.query.fbs_sign,
-//     req.query.ppbs_result,
-//     req.query.ppbs_sign,
-//     req.query.activity_urine_output,
-//     req.query.activity_motion,
-//     req.query.activity_intake,
-//     req.query.activity_output,
-//   ];
+// Check if there were any errors
+if (errors.length > 0) {
+  // Return all errors
+  return res.status(400).json({ errors });
+} else {
+  // Proceed with your logic if all validations pass
+  // Format temperature using the previously defined function
+  // const formattedTemp = formatActivityTemp(activityTemp);
 
-//   db.query(query, values, (err, result) => {
-//     if (err) {
-//       console.error("Error inserting data into patient_activity_vitals:", err);
-//       res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
-//     } else {
-//       res.json({ success: true, message: "Data inserted successfully" });
-//     }
-//   });
-// };
+  const query = `
+    INSERT INTO patient_activity_vitals (
+      patient_id,
+      lead_id,
+      schedule_id,
+      marked_by,
+      schedule_date,
+      activity_timing,
+      activity_bp_systole,
+      activity_bp_diastole,
+      activity_temp,
+      activity_pulse,
+      activity_resp,
+      activity_pain_score,
+      activity_pain_location_description,
+      activity_spo,
+      activity_solid_intake,
+      activity_sugar_check,
+      cbg_result,
+      cbg_sign,
+      fbs_result,
+      fbs_sign,
+      ppbs_result,
+      ppbs_sign,
+      activity_urine_output,
+      activity_motion,
+      activity_intake,
+      activity_output,
+      created_at,
+      updated_at,
+      deleted_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NULL);
+  `;
+
+  // Assume db is your database connection object and it's set up correctly
+  const values = [
+    req.query.patient_id,
+    req.query.lead_id,
+    req.query.schedule_id,
+    req.query.marked_by,
+    req.query.schedule_date,
+    req.query.activity_timing,
+    activityBpSystole,
+    activityBpDiastole,
+    formatActivityTemp(parseFloat(req.query.activity_temp)),
+    activityPulse,
+    activityResp,
+    req.query.activity_pain_score,
+    req.query.activity_pain_location_description,
+    activitySpo,
+    req.query.activity_solid_intake,
+    req.query.activity_sugar_check,
+    req.query.cbg_result,
+    req.query.cbg_sign,
+    req.query.fbs_result,
+    req.query.fbs_sign,
+    req.query.ppbs_result,
+    req.query.ppbs_sign,
+    req.query.activity_urine_output,
+    req.query.activity_motion,
+    req.query.activity_intake,
+    req.query.activity_output,
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error inserting data into patient_activity_vitals:", err);
+      res.status(500).json({ error: "Error inserting data into patient_activity_vitals" });
+    } else {
+      res.json({ success: true, message: "Data inserted successfully" });
+    }
+  });
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+};
 
 // getPatientVitals = (req, res) => {
 //   console.log(typeof res); // Debug statement
@@ -1127,6 +1147,7 @@ module.exports = {
   getPatientMedicines,
   postPatientMedicines,
   getPatientMedicineSchedule,
+  postPatientVitalsWithValidation
   // patients,
  
   
