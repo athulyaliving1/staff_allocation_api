@@ -593,14 +593,14 @@ const postPatientVitalsWithValidation = (req, res) => {
 // Initialize an array to hold validation error messages
 let errors = [];
 
-// Blood Pressure Validation
-if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
+ // Blood Pressure Validation
+ if (activityBpSystole < 65 || activityBpSystole > 180 || activityBpDiastole < 50 || activityBpDiastole > 190) {
   errors.push(`Invalid blood pressure values: Systole 65-180 (given: ${activityBpSystole}), Diastole 50-190 (given: ${activityBpDiastole})`);
 }
 
 // Temperature Validation
 // if (activityTemp < 90.5 || activityTemp > 119.5) {
-//   errors.push("Invalid temperature value: Expected range 90.5-119.5  (given: " + activityTemp + ")   ");
+//   errors.push("Invalid temperature value: Expected range 90.5-119.5  (given: " + activityTemp + ")");
 // }
 
 // Pulse Validation
@@ -610,18 +610,18 @@ if (activityPulse < 30 || activityPulse > 190) {
 
 // Respiratory Rate Validation
 if (activityResp < 10 || activityResp > 140) {
-  errors.push("Invalid respiratory rate value: Expected range 10-140   (given: " + activityResp + ")  ");
+  errors.push("Invalid respiratory rate value: Expected range 10-140   (given: " + activityResp + ")");
 }
 
 // Spo2 Validation
 if (activitySpo < 84 || activitySpo > 115) {
-  errors.push("Invalid Spo2 value: Expected range 84-115 (given: " + activitySpo + ")" );
+  errors.push("Invalid Spo2 value: Expected range 84-115 (given: " + activitySpo + ")");
 }
 
 // Check if there were any errors
 if (errors.length > 0) {
-  // Return all errors
-  return res.status(400).json({ errors });
+  // Return all errors joined by \n for newline
+  return res.status(400).json({ errors: errors.join("\n") });
 } else {
   // Proceed with your logic if all validations pass
   // Format temperature using the previously defined function
